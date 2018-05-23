@@ -1,0 +1,20 @@
+#include "uart.h"
+#include "my_printf.h"
+
+
+void printException(unsigned int cpsr, char *str)
+{
+	puts("Exception! cpsr = ");
+	printHex(cpsr);
+	puts(" ");
+	puts(str);
+	puts("\n\r");
+}
+
+void printSWIVal(unsigned int *pSWI)
+{
+	puts("SWI val = ");
+	printHex(*pSWI & ~0xff000000);
+	puts("\n\r");
+}
+
