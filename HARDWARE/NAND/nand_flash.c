@@ -7,7 +7,7 @@
 
 #define TXD0READY   (1<<2)
 
-void nand_init(void)
+void InitNand(void)
 {
 #define TACLS   0
 #define TWRPH0  1
@@ -18,24 +18,24 @@ void nand_init(void)
 	NFCONT = (1<<4)|(1<<1)|(1<<0);	
 }
 
-void nand_select(void)
+void SelectNand(void)
 {
 	NFCONT &= ~(1<<1);	
 }
 
-void nand_deselect(void)
+void DeselectNand(void)
 {
 	NFCONT |= (1<<1);	
 }
 
-void nand_cmd(unsigned char cmd)
+void NandCmd(unsigned char cmd)
 {
 	volatile int i;
 	NFCCMD = cmd;
 	for (i = 0; i < 10; i++);
 }
 
-void nand_addr_byte(unsigned char addr)
+void NandAddrByte(unsigned char addr)
 {
 	volatile int i;
 	NFADDR = addr;
@@ -43,16 +43,28 @@ void nand_addr_byte(unsigned char addr)
 }
 
 
-void nand_addr(unsigned int addr)
+void NandAddr(unsigned int addr)
 {
-	unsigned int col  = addr % 2048;
-	unsigned int page = addr / 2048;
+	unsigned int iCol  = addr % 2048;
+	unsigned int iPage = addr / 2048;
 	volatile int i;
 
-	NFADDR = col & 0xff;
+	NFADDR = iCol & 0xff;
 	for (i = 0; i < 10; i++);
-	NFADDR = (col >> 8) & 0xff;
+	NFADDR = (iCol >> 8) & 0xff;
 	for (i = 0; i < 10; i++);
+	
+	NFADDR  = iPage & 0xff;
+	for (i = 0; i < 10; i++);
+	NFADDR  = (iPage >> 8) & 0xff;
+	for (i = 0; i < 10; i++);
+	NFADDR  = (iPage >> 16) & 0xff;
+	for (i = 0; i < 10; i++);	
+}
+
+void NandPage(unsigned int page)
+{
+	volatile int i;
 	
 	NFADDR  = page & 0xff;
 	for (i = 0; i < 10; i++);
@@ -62,19 +74,7 @@ void nand_addr(unsigned int addr)
 	for (i = 0; i < 10; i++);	
 }
 
-void nand_page(unsigned int page)
-{
-	volatile int i;
-	
-	NFADDR  = page & 0xff;
-	for (i = 0; i < 10; i++);
-	NFADDR  = (page >> 8) & 0xff;
-	for (i = 0; i < 10; i++);
-	NFADDR  = (page >> 16) & 0xff;
-	for (i = 0; i < 10; i++);	
-}
-
-void nand_col(unsigned int col)
+void NandCol(unsigned int col)
 {
 	volatile int i;
 
@@ -85,43 +85,43 @@ void nand_col(unsigned int col)
 }
 
 
-void nand_wait_ready(void)
+void NandWaitReady(void)
 {
 	while (!(NFSTAT & 1));
 }
 
-unsigned char nand_data(void)
+unsigned char NandData(void)
 {
 	return NFDATA;
 }
 
-int nand_bad(unsigned int addr)
+int NandBad(unsigned int addr)
 {
 	unsigned int col  = 2048;
 	unsigned int page = addr / 2048;
 	unsigned char val;
 
 	/* 1. 选中 */
-	nand_select();
+	SelectNand();
 	
 	/* 2. 发出读命令00h */
-	nand_cmd(0x00);
+	NandCmd(0x00);
 	
 	/* 3. 发出地址(分5步发出) */
-	nand_col(col);
-	nand_page(page);
+	NandCol(col);
+	NandPage(page);
 	
 	/* 4. 发出读命令30h */
-	nand_cmd(0x30);
+	NandCmd(0x30);
 	
 	/* 5. 判断状态 */
-	nand_wait_ready();
+	NandWaitReady();
 
 	/* 6. 读数据 */
-	val = nand_data();
+	val = NandData();
 	
 	/* 7. 取消选中 */		
-	nand_deselect();
+	DeselectNand();
 
 
 	if (val != 0xff)
@@ -131,74 +131,74 @@ int nand_bad(unsigned int addr)
 }
 
 
-void nand_read(unsigned int addr, unsigned char *buf, unsigned int len)
+void ReadNand(unsigned int addr, unsigned char *buf, unsigned int len)
 {
-	int col = addr % 2048;
+	int iCol = addr % 2048;
 	int i = 0;
 		
 	while (i < len)
 	{
 
-		if (!(addr & 0x1FFFF) && nand_bad(addr)) /* 一个block只判断一次 */
+		if (!(addr & 0x1FFFF) && NandBad(addr)) /* 一个block只判断一次 */
 		{
 			addr += (128*1024);  /* 跳过当前block */
 			continue;
 		}
 
 		/* 1. 选中 */
-		nand_select();
+		SelectNand();
 		
 		
 		/* 2. 发出读命令00h */
-		nand_cmd(0x00);
+		NandCmd(0x00);
 
 		/* 3. 发出地址(分5步发出) */
-		nand_addr(addr);
+		NandAddr(addr);
 
 		/* 4. 发出读命令30h */
-		nand_cmd(0x30);
+		NandCmd(0x30);
 
 		/* 5. 判断状态 */
-		nand_wait_ready();
+		NandWaitReady();
 
 		/* 6. 读数据 */
-		for (; (col < 2048) && (i < len); col++)
+		for (; (iCol < 2048) && (i < len); iCol++)
 		{
-			buf[i] = nand_data();
+			buf[i] = NandData();
 			i++;
 			addr++;
 		}
 		
-		col = 0;
+		iCol = 0;
 
 
 		/* 7. 取消选中 */		
-		nand_deselect();
+		DeselectNand();
 		
 	}
 }
 
-void nand_w_data(unsigned char val)
+void NandWData(unsigned char val)
 {
 	NFDATA = val;
 }
 
 
 
-void nand_chip_id(void)
+void PrintNandChipID(void)
 { 
 	unsigned char buf[5]={0};
 	
-	nand_select(); 
-	nand_cmd(0x90);
-	nand_addr_byte(0x00);
+	SelectNand(); 
+	NandCmd(0x90);
+	NandAddrByte(0x00);
 
-	buf[0] = nand_data();
-	buf[1] = nand_data();	
-	buf[2] = nand_data();
-	buf[3] = nand_data();
-	buf[4] = nand_data();	
-	nand_deselect(); 	
+	buf[0] = NandData();
+	buf[1] = NandData();	
+	buf[2] = NandData();
+	buf[3] = NandData();
+	buf[4] = NandData();	
+	DeselectNand(); 	
 
 	printf("maker   id  = 0x%x\n\r",buf[0]);
 	printf("device  id  = 0x%x\n\r",buf[1]);	
@@ -211,7 +211,7 @@ void nand_chip_id(void)
 	
 }
 
-int nand_erase(unsigned int addr, unsigned int len)
+int NandErase(unsigned int addr, unsigned int len)
 {
 	int page = addr / 2048;
 
@@ -227,22 +227,22 @@ int nand_erase(unsigned int addr, unsigned int len)
 		return -1;
 	}
 	
-	nand_select(); 
+	SelectNand(); 
 
 	while (1)
 	{
 		page = addr / 2048;
 		
-		nand_cmd(0x60);
+		NandCmd(0x60);
 		
 		/* row/page addr */
-		nand_addr_byte(page & 0xff);
-		nand_addr_byte((page>>8) & 0xff);
-		nand_addr_byte((page>>16) & 0xff);
+		NandAddrByte(page & 0xff);
+		NandAddrByte((page>>8) & 0xff);
+		NandAddrByte((page>>16) & 0xff);
 
-		nand_cmd(0xD0);
+		NandCmd(0xD0);
 
-		nand_wait_ready();
+		NandWaitReady();
 
 		len -= (128*1024);
 		if (len == 0)
@@ -250,39 +250,39 @@ int nand_erase(unsigned int addr, unsigned int len)
 		addr += (128*1024);
 	}
 	
-	nand_deselect(); 	
+	DeselectNand(); 	
 	return 0;
 }
 
-void nand_write(unsigned int addr, unsigned char *buf, unsigned int len)
+void NandWrite(unsigned int addr, unsigned char *buf, unsigned int len)
 {
 	int page = addr / 2048;
 	int col  = addr & (2048 - 1);
 	int i = 0;
 
-	nand_select(); 
+	SelectNand(); 
 
 	while (1)
 	{
-		nand_cmd(0x80);
+		NandCmd(0x80);
 
 		/* 发出地址 */
 		/* col addr */
-		nand_addr_byte(col & 0xff);
-		nand_addr_byte((col>>8) & 0xff);
+		NandAddrByte(col & 0xff);
+		NandAddrByte((col>>8) & 0xff);
 		
 		/* row/page addr */
-		nand_addr_byte(page & 0xff);
-		nand_addr_byte((page>>8) & 0xff);
-		nand_addr_byte((page>>16) & 0xff);
+		NandAddrByte(page & 0xff);
+		NandAddrByte((page>>8) & 0xff);
+		NandAddrByte((page>>16) & 0xff);
 
 		/* 发出数据 */
 		for (; (col < 2048) && (i < len); )
 		{
-			nand_w_data(buf[i++]);
+			NandWData(buf[i++]);
 		}
-		nand_cmd(0x10);
-		nand_wait_ready();
+		NandCmd(0x10);
+		NandWaitReady();
 
 		if (i == len)
 			break;
@@ -295,12 +295,12 @@ void nand_write(unsigned int addr, unsigned char *buf, unsigned int len)
 		
 	}
 	
-	nand_deselect(); 	
+	DeselectNand(); 	
 }
 
 
 
-void do_read_nand_flash(void)
+void DoReadNandFlash(void)
 {
 	unsigned int addr;
 	volatile unsigned char *p;
@@ -313,7 +313,7 @@ void do_read_nand_flash(void)
 	printf("Enter the address to read: ");
 	addr = get_uint();
 
-	nand_read(addr, buf, 64);
+	ReadNand(addr, buf, 64);
 	p = (volatile unsigned char *)buf;
 
 	printf("Data : \n\r");
@@ -335,15 +335,15 @@ void do_read_nand_flash(void)
 		{
 			/* 后打印字符 */
 			if (str[j] < 0x20 || str[j] > 0x7e)  /* 不可视字符 */
-				putchar('.');
+				PutChar('.');
 			else
-				putchar(str[j]);
+				PutChar(str[j]);
 		}
 		printf("\n\r");
 	}
 }
 
-void do_erase_nand_flash(void)
+void DoEraseNandFlash(void)
 {
 	unsigned int addr;
 	
@@ -352,11 +352,11 @@ void do_erase_nand_flash(void)
 	addr = get_uint();
 
 	printf("erasing ...\n\r");
-	nand_erase(addr, 128*1024);
+	NandErase(addr, 128*1024);
 }
 
 
-void do_write_nand_flash(void)
+void DoWriteNandFlash(void)
 {
 	unsigned int addr;
 	unsigned char str[100];
@@ -369,7 +369,7 @@ void do_write_nand_flash(void)
 	gets((char *)str);
 
 	printf("writing ...\n\r");
-	nand_write(addr, str, strlen((char *)str)+1);
+	NandWrite(addr, str, strlen((char *)str)+1);
 
 }
 

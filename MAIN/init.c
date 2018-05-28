@@ -2,15 +2,8 @@
 #include "init.h"
 
 
-int led_init(void)
-{
-	/* 设置GPFCON让GPF4/5/6配置为输出引脚 */
-	GPFCON &= ~((3<<8) | (3<<10) | (3<<12));
-	GPFCON |=  ((1<<8) | (1<<10) | (1<<12));
-	return 0;
-}
 
-void sdram_init(void)
+void initsdram(void)
 {
 	BWSCON = 0x22000000;
 
@@ -39,7 +32,7 @@ void bank0_tacc_set(int val)
 * 设置控制SDRAM的13个寄存器
 * 使用位置无关代码
 **************************************************************************/   
-void memsetup(void)
+void SetupMem(void)
 {
 	unsigned long *p = (unsigned long *)MEM_CTL_BASE;	
 	p[0] = 0x22111110;		//BWSCON

@@ -106,7 +106,7 @@ do_irq:
 	stmdb sp!, {r0-r12, lr}  
 	
 	/* 处理irq异常 */
-	bl handle_irq_c
+	bl HandleIrqC
 	
 	/* 恢复现场 */
 	ldmia sp!, {r0-r12, pc}^  /* ^会把spsr_irq的值恢复到cpsr里 */
@@ -117,6 +117,7 @@ reset:
 	ldr r0, =0x53000000
 	ldr r1, =0
 	str r1, [r0]
+
 
 	/* 设置MPLL, FCLK : HCLK : PCLK = 400m : 100m : 50m */
 	/* LOCKTIME(0x4C000000) = 0xFFFFFFFF */
@@ -162,16 +163,19 @@ reset:
 	ldr sp, =0x40000000+4096 /* 先假设是nor启动 */
 	moveq sp, #4096  /* nand启动 */
 	streq r0, [r1]   /* 恢复原来的值 */
+
+	bl inituart0
 	
-	bl sdram_init
-	//bl sdram_init2	 /* 用到有初始值的数组, 不是位置无关码 */
+	bl initsdram
+	//bl InitSdram	 /* 用到有初始值的数组, 不是位置无关码 */
 
 	/* 重定位text, rodata, data段整个程序 */
 	bl copy2sdram
 
 	/* 清除BSS段 */
-	bl clean_bss
-	
+	bl cleanbss
+
+
 	/* 复位之后, cpu处于svc模式
 	 * 现在, 切换到usr模式
 	 */
@@ -180,23 +184,13 @@ reset:
 	bic r0, r0, #(1<<7)  /* 清除I位, 使能中断 */
 	msr cpsr, r0
 
-	
 	/* 设置 sp_usr */
 	ldr sp, =0x33f00000
 
 	ldr pc, =sdram
 
+
 sdram:
-	bl uart0_init
-
-	/* 未定义指令中断测试 */
-	/* 故意加入一条未定义指令 
-	bl print1
-und_code:
-	.word 0xdeadc0de   //未定义指令 
-	bl print2  */
-
-	//swi 0x123   /* 软件中断测试 */
 	
 	//bl main  /* 使用BL命令相对跳转, 程序仍然在NOR/sram执行 */
 	ldr pc, = main  /* 绝对跳转, 跳到SDRAM */

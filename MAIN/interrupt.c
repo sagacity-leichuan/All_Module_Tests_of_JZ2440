@@ -1,7 +1,7 @@
 #include "s3c2440_soc.h"
 #include "interrupt.h"
 
-irq_func irq_array[32];
+IrqFunc g_fIrqArray[32];
 
 /* SRCPND 用来显示哪个中断产生了, 需要清除对应位
  * bit0-eint0
@@ -25,13 +25,13 @@ irq_func irq_array[32];
  */
 
 /* 初始化按键中断控制器 */
-void key_interrupt_init(void)
+void InitKeyInterrupt(void)
 {
 	INTMSK &= ~((1<<0) | (1<<2) | (1<<5));
 }
 
 /* 初始化按键, 设为中断源 */
-void key_eint_init(void)
+void InitKeyEint(void)
 {
 	/* 配置GPIO为中断引脚 */
 	GPFCON &= ~((3<<0) | (3<<4));
@@ -55,7 +55,7 @@ void key_eint_init(void)
  */
 
 
-void key_eint_irq(int irq)
+void KeyEintIrq(int irq)
 {
 	unsigned int val = EINTPEND;
 	unsigned int val1 = GPFDAT;
@@ -124,10 +124,10 @@ void key_eint_irq(int irq)
 }
 
 
-void handle_irq_c(void)
+void HandleIrqC(void)
 {
 	/* 分辨中断源 */
-	int bit = INTOFFSET;
+	int iBit = INTOFFSET;
 
 	/* 调用对应的处理函数 */
 	//if (bit == 0 || bit == 2 || bit == 5)  /* eint0,2,eint8_23 */
@@ -135,16 +135,16 @@ void handle_irq_c(void)
 	//	key_eint_irq(bit); /* 处理中断, 清中断源EINTPEND */
 	//}
 
-	irq_array[bit](bit);
+	g_fIrqArray[iBit](iBit);
 	
 	/* 清中断 : 从源头开始清 */
-	SRCPND = (1<<bit);
-	INTPND = (1<<bit);	
+	SRCPND = (1<<iBit);
+	INTPND = (1<<iBit);	
 }
 
-void register_irq(int irq, irq_func fp)
+void RegisterIrq(int irq, IrqFunc fp)
 {
-	irq_array[irq] = fp;
+	g_fIrqArray[irq] = fp;
 
 	INTMSK &= ~(1<<irq);
 }

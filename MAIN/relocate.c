@@ -1,6 +1,5 @@
+#include "s3c2440_soc.h"
 #include "nand_flash.h"
-#include "my_printf.h"
-
 
 int isBootFromNorFlash(void)
 {
@@ -45,14 +44,15 @@ void copy2sdram(void)
 	}
 	else
 	{
-		nand_init();
-		nand_read((unsigned int)src, (unsigned char *)dest, len);
+		InitNand();
+		ReadNand((unsigned int)src, (unsigned char *)dest, len);
 	}
+
 }
 
 
 
-void clean_bss(void)
+void cleanbss(void)
 {
 	/* 要从lds文件中获得 __bss_start, _end
 	 */

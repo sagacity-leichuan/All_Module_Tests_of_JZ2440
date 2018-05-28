@@ -1,9 +1,9 @@
 #ifndef _INIT_H
 #define _INIT_H
 
-int led_init(void);
+int InitLed(void);
 
-void sdram_init(void);
+void InitSdram(void);
 
 void bank0_tacc_set(int val);
 

@@ -4,13 +4,13 @@
 #include "string_utils.h"
 
 
-void do_write_nor_flash(void);
+void DoWriteNorFlash(void);
 
-void do_read_nor_flash(void);
+void DoReadNorFlash(void);
 
-void do_scan_nor_flash(void);
+void DoScanNorFlash(void);
 
-void do_erase_nor_flash(void);
+void DoEraseNorFlash(void);
 
 #endif
 

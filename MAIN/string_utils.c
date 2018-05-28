@@ -127,14 +127,14 @@ char *gets(char s[])
 	
 	while(1)
 	{
-		c = getchar();
+		c = GetChar();
 
 		/* ªÿœ‘ */
-		putchar(c);
+		PutChar(c);
 		if (c == '\n')
-			putchar('\r');
+			PutChar('\r');
 		else if (c == '\r')
-			putchar('\n');
+			PutChar('\n');
 		
 		if((c == '\n') || (c == '\r'))
 		{

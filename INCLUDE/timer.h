@@ -3,16 +3,16 @@
 
 #define NULL  ((void *)0)
 
-typedef void(*timer_func)(void);
+typedef void(*TimerFunc)(void);
 
-typedef struct timer_desc {
+typedef struct STimerDesc {
 	char *name;
-	timer_func fp;
-}timer_desc, *p_timer_desc;
+	TimerFunc fp;
+}STimerDesc, *PSTimerDesc;
 
-void timer_init(void);
-int register_timer(char *name, timer_func fp);
-int unregister_timer(char *name);
+void InitTimer(void);
+int RegisterTimer(char *name, TimerFunc fp);
+int UnregisterTimer(char *name);
 
 #endif
 

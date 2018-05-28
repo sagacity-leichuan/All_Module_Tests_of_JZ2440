@@ -2,10 +2,10 @@
 #ifndef _UART_H
 #define _UART_H
 
-void uart0_init(void);
-int putchar(int c);
-int getchar(void);
-int puts(const char *s);
+void inituart0(void);
+int PutChar(int c);
+int GetChar(void);
+int Puts(const char *s);
 
 #endif
 

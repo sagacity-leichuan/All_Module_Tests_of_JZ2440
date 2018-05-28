@@ -134,24 +134,24 @@ void printHex(unsigned int val)
 	}
 
 	/* ´òÓ¡ */
-	puts("0x");
+	Puts("0x");
 	for (i = 7; i >=0; i--)
 	{
 		if (arr[i] <= 9)
-			putchar(arr[i] + '0');
+			PutChar(arr[i] + '0');
 		else if(arr[i] >= 0xA && arr[i] <= 0xF)
-			putchar(arr[i] - 0xA + 'A');
+			PutChar(arr[i] - 0xA + 'A');
 	}
 }
 
 void print1(void)
 {
-	puts("abc\n\r");
+	Puts("abc\n\r");
 }
 
 void print2(void)
 {
-	puts("123\n\r");
+	Puts("123\n\r");
 }
 
 

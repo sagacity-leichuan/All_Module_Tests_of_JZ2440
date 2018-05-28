@@ -4,7 +4,7 @@
 
 
 /* 115200,8n1 */
-void uart0_init(void)
+void inituart0(void)
 {
 	/* 设置引脚用于串口 */
 	/* GPH2,3用于TxD0, RxD0 */
@@ -29,7 +29,7 @@ void uart0_init(void)
 
 }
 
-int putchar(int c)
+int PutChar(int c)
 {
 	/* UTRSTAT0 */
 	/* UTXH0 */
@@ -40,17 +40,17 @@ int putchar(int c)
 	
 }
 
-int getchar(void)
+int GetChar(void)
 {
 	while (!(UTRSTAT0 & (1<<0)));
 	return URXH0;
 }
 
-int puts(const char *s)
+int Puts(const char *s)
 {
 	while (*s)
 	{
-		putchar(*s);
+		PutChar(*s);
 		s++;
 	}
 	return 0;
