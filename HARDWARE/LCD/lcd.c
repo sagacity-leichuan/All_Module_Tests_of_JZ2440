@@ -81,7 +81,7 @@ int InitLcd(void)
 }
 
 
-void LCDTest(void)
+void TestLCD(void)
 {
 	unsigned int uiFbBase;
 	int iXres, iYres, iBpp;
@@ -219,6 +219,10 @@ void LCDTest(void)
 
 	/* Êä³öÎÄ×Ö */
 	PrintFbString8x16(10, 10, "leichuan   sagacity_lc@163.com", 0xffff, 1);
+
+	Delay(3000000);
+
+	MainPage();
 }
 
 

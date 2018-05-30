@@ -22,7 +22,7 @@ int isBootFromNorFlash(void)
 }
 
 
-void copy2sdram(void)
+void Copy2Sdram(void)
 {
 	/* 要从lds文件中获得 __code_start, __bss_start
 	 * 然后从0地址把数据复制到__code_start
@@ -52,7 +52,7 @@ void copy2sdram(void)
 
 
 
-void cleanbss(void)
+void CleanBss(void)
 {
 	/* 要从lds文件中获得 __bss_start, _end
 	 */

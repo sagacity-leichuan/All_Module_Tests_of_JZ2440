@@ -3,7 +3,7 @@
 
 
 
-void initsdram(void)
+void InitSdram(void)
 {
 	BWSCON = 0x22000000;
 

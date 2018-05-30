@@ -164,16 +164,16 @@ reset:
 	moveq sp, #4096  /* nand启动 */
 	streq r0, [r1]   /* 恢复原来的值 */
 
-	bl inituart0
+	bl InitUart0
 	
-	bl initsdram
+	bl InitSdram
 	//bl InitSdram	 /* 用到有初始值的数组, 不是位置无关码 */
 
 	/* 重定位text, rodata, data段整个程序 */
-	bl copy2sdram
+	bl Copy2Sdram
 
 	/* 清除BSS段 */
-	bl cleanbss
+	bl CleanBss
 
 
 	/* 复位之后, cpu处于svc模式

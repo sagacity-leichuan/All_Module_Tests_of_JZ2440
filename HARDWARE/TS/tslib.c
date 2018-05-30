@@ -35,6 +35,50 @@ static int SeekDifference(int x, int y)
 		return iTemp*(-1);
 }
 
+int SetTsCalibrateParams(PSTsParameters tsparam)
+{
+
+	/* X轴方向 */
+	int ts_s1, ts_s2;
+	int lcd_s;
+
+	/* Y轴方向 */
+	int ts_d1, ts_d2;
+	int lcd_d;
+
+	/* 获得LCD的参数: fb_base, xres, yres, bpp */
+	GetLcdParams(&gs_uiFbBase, &gs_iXres, &gs_iYres, &gs_iBpp);
+
+	ts_s1 = tsparam->iB_ts_x - tsparam->iA_ts_x;
+	ts_s2 = tsparam->iC_ts_x - tsparam->iD_ts_x;
+	lcd_s = gs_iXres-50-50;
+
+	ts_d1 = tsparam->iD_ts_y - tsparam->iA_ts_y;
+	ts_d2 = tsparam->iC_ts_y - tsparam->iB_ts_y;
+	lcd_d = gs_iYres-50-50;
+
+	gs_dKx = ((double)(2*lcd_s)) / (ts_s1 + ts_s2);
+	gs_dKy = ((double)(2*lcd_d)) / (ts_d1 + ts_d2);
+
+	gs_iTsXc = tsparam->iE_ts_x;
+	gs_iTsYc = tsparam->iE_ts_y;
+
+	gs_iLcdXc = gs_iXres/2;
+	gs_iLcdYc = gs_iYres/2;
+
+	gs_TsXYSwap = tsparam->iTsXYSwap;
+
+	
+	printf("A lcd_x = %08d, lcd_y = %08d\n\r", GetLcdXFrmTsX(tsparam->iA_ts_x), GetLcdYFrmTsY(tsparam->iA_ts_y));
+	printf("B lcd_x = %08d, lcd_y = %08d\n\r", GetLcdXFrmTsX(tsparam->iB_ts_x), GetLcdYFrmTsY(tsparam->iB_ts_y));
+	printf("C lcd_x = %08d, lcd_y = %08d\n\r", GetLcdXFrmTsX(tsparam->iC_ts_x), GetLcdYFrmTsY(tsparam->iC_ts_y));
+	printf("D lcd_x = %08d, lcd_y = %08d\n\r", GetLcdXFrmTsX(tsparam->iD_ts_x), GetLcdYFrmTsY(tsparam->iD_ts_y));
+	printf("E lcd_x = %08d, lcd_y = %08d\n\r", GetLcdXFrmTsX(tsparam->iE_ts_x), GetLcdYFrmTsY(tsparam->iE_ts_y));
+
+	return 0;
+}
+
+
 void GetCalibratePointData(int lcd_x, int lcd_y, int *px, int *py)
 {
 	int iPressure = 0;
@@ -123,7 +167,7 @@ void SwapXY(int *px, int *py)
 
 */
 
-int CalibrateTs(void)
+int CalibrateTs(PSTsParameters tsparam)
 {
 
 	int a_ts_x, a_ts_y;
@@ -233,7 +277,20 @@ int CalibrateTs(void)
 	else if(GetLcdYFrmTsY(e_ts_y)<126 || GetLcdYFrmTsY(e_ts_y)>146)
 		return 0;
 	else
+	{
+		tsparam->iA_ts_x = a_ts_x;
+		tsparam->iA_ts_y = a_ts_y;
+		tsparam->iB_ts_x = b_ts_x;
+		tsparam->iB_ts_y = b_ts_y;
+		tsparam->iC_ts_x = c_ts_x;
+		tsparam->iC_ts_y = c_ts_y;
+		tsparam->iD_ts_x = d_ts_x;
+		tsparam->iD_ts_y = d_ts_y;
+		tsparam->iE_ts_x = e_ts_x;
+		tsparam->iE_ts_y = e_ts_y;
+		tsparam->iTsXYSwap = gs_TsXYSwap;
 		return 1;
+	}
 }
 
 /*
@@ -241,10 +298,18 @@ int CalibrateTs(void)
  */
 int ReadTs(int *lcd_x, int *lcd_y, int *lcd_pressure)
 {
-	int ts_x, ts_y, ts_pressure;
+	int ts_x = 0, ts_y = 0, ts_pressure = 0;
 	int tmp_x, tmp_y;
 	
 	ReadTsRaw(&ts_x, &ts_y, &ts_pressure);
+
+	if(ts_x == 0 && ts_y == 0 && ts_pressure == 0)
+	{
+		*lcd_x = 0;
+		*lcd_y = 0;
+		*lcd_pressure = 0;
+		return 1;	
+	}
 
 	if (gs_TsXYSwap)
 	{
@@ -260,17 +325,17 @@ int ReadTs(int *lcd_x, int *lcd_y, int *lcd_pressure)
 	
 	if (tmp_x < 0 || tmp_x >= gs_iXres || tmp_y < 0 || tmp_y >= gs_iYres)
 	{
-		printf(" 0000 tmp_x = %d, tmp_y = %d\n\r", tmp_x, tmp_y);
 		return -1;
 	}
 
-	printf(" 1111 tmp_x = %d, tmp_y = %d\n\r", tmp_x, tmp_y);	
+	printf(" tmp_x = %d, tmp_y = %d\n\r", tmp_x, tmp_y);	
 	
 	*lcd_x = tmp_x;
 	*lcd_y = tmp_y;
 	*lcd_pressure = ts_pressure;
 	return 0;
 }
+
 
 
 

@@ -58,7 +58,7 @@ void GetLcdParams(unsigned int *fb_base, int *xres, int *yres, int *bpp);
 void EnableLcd(void);
 void DisableLcd(void);
 int RegisterLcd(PSLcdParams plcd);
-void LCDTest(void);
+void TestLCD(void);
 
 
 

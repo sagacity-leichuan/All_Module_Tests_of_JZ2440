@@ -33,9 +33,12 @@ hardware_lcd_obj_c    	+= font_16x32.o
 hardware_ts_obj_c		:=touchscreen.o
 hardware_ts_obj_c		+=tslib.o
 
+hardware_key_obj_c		:=key.o
+
 SUB_DIR     := MAIN
 SUB_DIR     += HARDWARE/LED
 SUB_DIR     += HARDWARE/NAND
 SUB_DIR     += HARDWARE/NOR
 SUB_DIR     += HARDWARE/LCD
 SUB_DIR     += HARDWARE/TS
+SUB_DIR     += HARDWARE/KEY

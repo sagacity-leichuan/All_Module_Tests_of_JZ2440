@@ -2,7 +2,7 @@
 #define _LED_H
 
 int InitLed(void);
-void LEDTest(void);
+void TestLED(void);
 
 
 #endif

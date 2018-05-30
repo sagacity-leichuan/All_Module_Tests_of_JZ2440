@@ -7,13 +7,14 @@
 #include "framebuffer.h"
 #include "font.h"
 #include "function.h"
-
-
+#include "geometry.h"
 
 #define ADC_INT_BIT (10)
 #define TC_INT_BIT  (9)
 
 #define INT_ADC_TC   (31)
+
+extern SButton g_sButtonReturn;
 
 
 /* ADCTSC's bits */
@@ -118,7 +119,14 @@ void ReportTsXY(int x, int y, int pressure)
 
 void ReadTsRaw(int *px, int *py, int *ppressure)
 {
-	while (gs_viTsDataValid == 0);
+	if(gs_viTsDataValid == 0)
+	{
+		*px = 0;
+		*py = 0;
+		*ppressure = 0;
+		return;
+	}
+		
 	
 	*px = gs_viTsX;
 	*py = gs_viTsY;
@@ -148,6 +156,8 @@ void TouchscreenTimerIrq(void)
 		DisableTsTimer();
 		EnterWaitPenDownMode();
 		//printf("touchscreen_timer_irq clear pressure\n\r");
+		ReportTsXY(0, 0, 0);
+		Delay(10);
 		ReportTsXY(0, 0, 0);
 		//printf("leave touchscreen_timer_irq\n\r");
 		return;
@@ -229,6 +239,8 @@ void IsrAdc(void)
 		DisableTsTimer();
 		//printf("timer disable\n\r");
 		EnterWaitPenDownMode();
+		ReportTsXY(0, 0, 0);
+		Delay(10);
 		ReportTsXY(0, 0, 0);
 	}
 
@@ -332,26 +344,27 @@ void TestTouchScreen(void)
 	/* 清屏 */
 	ClearScreen(0x0);
 
-	/* 显示文字提示较准 */
-	PrintFbString8x16(70, 70, "Touch cross to calibrate touchscreen", 0xffffff,0);
-	
-	CalibrateTs();
-
 	/* 显示文字提示绘画 */
-	PrintFbString8x16(70, iYres - 70, "OK! To draw!", 0xffffff,0);
-
+	PrintFbString16x32(176, 5, " TS TEST", 0x7cfc00, 0);
+	PrintFbString8x16(70, 70, "OK! To draw!", 0xffffff,0);
+	DisplayTestItemIcon(g_sButtonReturn.iX,g_sButtonReturn.iY,g_sButtonReturn.sName,0x0);
 
 	while (1)
 	{
+		if(isClickReturn())
+		{
+			MainPage();
+			break;
+		}
+		
 		i = ReadTs(&x, &y, &iPressure);
 		if (i == 0)
 		{
-			//printf(" i = %d\n\r", i);
-			//printf(" iPressure = %d\n\r", iPressure);
-
 			if (iPressure)
 			{
-				PutFbPixel(x, y, 0xffffff);
+				DrawLine(x-1, y-1,x+1,y+1, 0xff0000);
+				DrawLine(x-1, y, x+1, y, 0xff0000);
+				DrawLine(x-1, y+1, x+1, y+1, 0xff0000);
 			}
 		}
 		

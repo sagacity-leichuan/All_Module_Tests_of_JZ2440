@@ -4,7 +4,7 @@
 
 
 /* 115200,8n1 */
-void inituart0(void)
+void InitUart0(void)
 {
 	/* 设置引脚用于串口 */
 	/* GPH2,3用于TxD0, RxD0 */
