@@ -77,4 +77,15 @@ void InitTimer(void)
 	RegisterIrq(10, TimerIrq);
 }
 
+int StopTimer(void)
+{
+	TCON &= ~(1<<0);
+	return 0;
+}
+int StartTimer(void)
+{
+	TCON |= (1<<0);
+	return 0;
+}
+
 

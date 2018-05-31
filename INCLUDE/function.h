@@ -57,6 +57,7 @@ typedef struct SButton
 
 void Delay(volatile int d);
 void DisplayTestItemIcon(int x,int y,char * name,unsigned int color);
+void DisplayReturnButton(void);
 void ClickedButton(int x,int y,char * name,unsigned int color);
 void SystemInit(void);
 void BootScreen(void);
@@ -66,10 +67,6 @@ void InitButton(void);
 void MainPage(void);
 void GetTestItem(int* value);
 int isClickReturn(void);
-
-void TestNandFlash(void);
-
-
 
 #endif
 

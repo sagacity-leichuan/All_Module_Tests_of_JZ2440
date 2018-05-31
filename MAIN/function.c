@@ -70,7 +70,7 @@ void InitButton(void)
 	g_sButton[5].iY = 99;
 	g_sButton[5].iLength = BUTTON_LENGTH;
 	g_sButton[5].iHigh = BUTTON_HIGH;
-	g_sButton[5].sName = "I2C Test";
+	g_sButton[5].sName = "SPI Test";
 
 	g_sButton[6].iID = TEST_IDR;
 	g_sButton[6].iX = 20;
@@ -356,18 +356,27 @@ void DisplayTestItemIcon(int x,int y,char * name,unsigned int color)
 	return;
 }
 
-void DisplayReturnButton()
+void DisplayReturnButton(void)
 {
-	DisplayTestItemIcon(g_sButtonReturn.iX,g_sButtonReturn.iY,g_sButtonReturn.sName,0);
+	int i;
+	
+	for(i = 0; i < 45; i++)
+		DrawLine(g_sButtonReturn.iX, g_sButtonReturn.iY + i, g_sButtonReturn.iX + 140, g_sButtonReturn.iY+i, 0x03a89e);
+
+	DrawRectangle(g_sButtonReturn.iX,g_sButtonReturn.iY,140,45,0);
+
+	PrintFbString16x32(g_sButtonReturn.iX+8, g_sButtonReturn.iY+6, g_sButtonReturn.sName, 0xffffff, 0);
+
+	return;
 }
 
 void BootInit(void)
 {
 	InitTsParam();
 	InitButton();
+	InitLed();
 	InitKey();
 	InitNand();
-	InitLed();
 	InitLcd();
 	EnableLcd();
 	InitFont();
@@ -499,66 +508,6 @@ void MainPage(void)
 	}
 	
 }
-
-
-void TestNandFlash(void)
-{
-	char c;
-
-	InitNand();
-
-	printf("\n\r");
-	while (1)
-	{
-		/* 打印菜单, 供我们选择测试内容 */
-		printf("[s] Scan nand flash\n\r");
-		printf("[e] Erase nand flash\n\r");
-		printf("[w] Write nand flash\n\r");
-		printf("[r] Read nand flash\n\r");
-		printf("[q] quit\n\r");
-		printf("Enter selection: ");
-
-		c = GetChar();
-		printf("%c\n\r", c);
-
-		/* 测试内容:
-		 * 1. 识别nand flash
-		 * 2. 擦除nand flash某个扇区
-		 * 3. 编写某个地址
-		 * 4. 读某个地址
-		 */
-		switch (c)		 
-		{
-			case 'q':
-			case 'Q':
-				return;
-				break;
-				
-			case 's':
-			case 'S':
-				PrintNandChipID();
-				break;
-
-			case 'e':
-			case 'E':
-				DoEraseNandFlash();
-				break;
-
-			case 'w':
-			case 'W':
-				DoWriteNandFlash();
-				break;
-
-			case 'r':
-			case 'R':
-				DoReadNandFlash();
-				break;
-			default:
-				break;
-		}
-	}
-}
-
 
 
 

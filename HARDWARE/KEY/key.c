@@ -4,7 +4,6 @@
 #include "framebuffer.h"
 #include "font.h"
 
-extern SButton g_sButtonReturn;
 int iTestStatus = 0;
 /* SRCPND 用来显示哪个中断产生了, 需要清除对应位
  * bit0-eint0
@@ -173,8 +172,8 @@ void TestKey(void)
 	ClearScreen(0xffffff);
 
 	/* 显示文字提示 */
-	PrintFbString16x32(176, 5, "KEY TEST", 0x7cfc00, 0);
-	DisplayTestItemIcon(g_sButtonReturn.iX,g_sButtonReturn.iY,g_sButtonReturn.sName,0x0);
+	PrintFbString16x32(176, 5, "KEY TEST", 0xe3170d, 0);
+	DisplayReturnButton();
 	
 	/* 循环点亮 */
 	while (1)

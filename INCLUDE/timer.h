@@ -13,6 +13,10 @@ typedef struct STimerDesc {
 void InitTimer(void);
 int RegisterTimer(char *name, TimerFunc fp);
 int UnregisterTimer(char *name);
+int StopTimer(void);
+int StartTimer(void);
+
+
 
 #endif
 

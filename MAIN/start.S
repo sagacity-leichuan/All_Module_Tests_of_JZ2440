@@ -164,10 +164,12 @@ reset:
 	moveq sp, #4096  /* nand启动 */
 	streq r0, [r1]   /* 恢复原来的值 */
 
-	bl InitUart0
+
 	
 	bl InitSdram
 	//bl InitSdram	 /* 用到有初始值的数组, 不是位置无关码 */
+
+	bl InitUart0
 
 	/* 重定位text, rodata, data段整个程序 */
 	bl Copy2Sdram

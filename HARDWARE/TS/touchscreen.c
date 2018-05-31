@@ -14,8 +14,6 @@
 
 #define INT_ADC_TC   (31)
 
-extern SButton g_sButtonReturn;
-
 
 /* ADCTSC's bits */
 #define WAIT_PEN_DOWN    (0<<8)
@@ -345,9 +343,9 @@ void TestTouchScreen(void)
 	ClearScreen(0x0);
 
 	/* 显示文字提示绘画 */
-	PrintFbString16x32(176, 5, " TS TEST", 0x7cfc00, 0);
+	PrintFbString16x32(176, 5, " TS TEST", 0xe3170d, 0);
 	PrintFbString8x16(70, 70, "OK! To draw!", 0xffffff,0);
-	DisplayTestItemIcon(g_sButtonReturn.iX,g_sButtonReturn.iY,g_sButtonReturn.sName,0x0);
+	DisplayReturnButton();
 
 	while (1)
 	{

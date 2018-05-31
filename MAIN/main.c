@@ -5,7 +5,9 @@
 #include "uart.h"
 #include "touchscreen.h"
 #include "key.h"
-
+#include "nand_flash.h"
+#include "nor_flash.h"
+#include "timer.h"
 
 int main(void)
 {
@@ -45,7 +47,15 @@ int main(void)
 			case TEST_DHT1:
 			case TEST_0038T:
 			case TEST_NOR:
+				StopTimer();
+				TestNorFlash();
+				StartTimer();
+				break;
 			case TEST_NAND:
+				StopTimer();
+				TestNandFlash();
+				StartTimer();
+				break;
 			default:
 				break;
 		

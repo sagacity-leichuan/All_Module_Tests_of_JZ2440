@@ -1,6 +1,8 @@
 
 #include "s3c2440_soc.h"
 #include "uart.h"
+#include "function.h"
+
 
 
 /* 115200,8n1 */
@@ -42,7 +44,14 @@ int PutChar(int c)
 
 int GetChar(void)
 {
-	while (!(UTRSTAT0 & (1<<0)));
+	while (!(UTRSTAT0 & (1<<0)))
+	{
+		if(isClickReturn())
+		{
+			MainPage();
+			return 0;
+		}
+	}
 	return URXH0;
 }
 

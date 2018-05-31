@@ -1,11 +1,9 @@
 #include "s3c2440_soc.h"
-#include "init.h"
+#include "led.h"
 #include "function.h"
 #include "tslib.h"
 #include "framebuffer.h"
 #include "font.h"
-
-extern SButton g_sButtonReturn;
 
 int InitLed(void)
 {
@@ -24,9 +22,9 @@ void TestLED(void)
 	ClearScreen(0xffffff);
 
 	/* 显示文字提示 */
-	PrintFbString16x32(176, 5, "LED TEST", 0x7cfc00, 0);
+	PrintFbString16x32(176, 5, "LED TEST", 0xe3170d, 0);
 	PrintFbString8x16(100, 110, "     LED testing is in progress......", 0x0,0);
-	DisplayTestItemIcon(g_sButtonReturn.iX,g_sButtonReturn.iY,g_sButtonReturn.sName,0x0);
+	DisplayReturnButton();
 	
 	/* 循环点亮 */
 	while (1)

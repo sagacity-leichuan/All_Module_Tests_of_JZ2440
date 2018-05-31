@@ -1,7 +1,11 @@
 #include "my_printf.h"
 #include "string_utils.h"
 #include "nor_flash.h"
-
+#include "function.h"
+#include "tslib.h"
+#include "framebuffer.h"
+#include "font.h"
+#include "nand_flash.h"
 
 #define NOR_FLASH_BASE  0  /* jz2440, nor-->cs0, base addr = 0 */
 
@@ -89,7 +93,6 @@ void DoScanNorFlash(void)
 	 *    erase block region : 里面含有1个或多个block, 它们的大小一样
 	 * 一个nor flash含有1个或多个region
 	 * 一个region含有1个或多个block(扇区)
-
 	 * Erase block region information:
 	 *    前2字节+1    : 表示该region有多少个block 
 	 *    后2字节*256  : 表示block的大小
@@ -233,6 +236,160 @@ void DoReadNorFlash(void)
 	}
 }
 
+
+void TestNorFlash(void)
+{
+	char c;
+	unsigned int uiSize;
+	int iVendor, iDevice;
+	unsigned char result[33];
+
+	/* 清屏 */
+	ClearScreen(0xffffff);
+
+	/* 显示文字提示 */
+	PrintFbString16x32(176, 5, "NOR TEST", 0xe3170d, 0);
+	DisplayReturnButton();
+
+	/* 打印厂家ID、设备ID */
+	NorCmd(0x555, 0xaa);    /* 解锁 */
+	NorCmd(0x2aa, 0x55); 
+	NorCmd(0x555, 0x90);    /* read id */
+	iVendor = NorDat(0);
+	iDevice = NorDat(1);
+	NorCmd(0, 0xf0);        /* reset */
+	
+	NorCmd(0x55, 0x98);  /* 进入cfi模式 */
+
+	/* 获取容量 */
+	uiSize = 1<<(NorDat(0x27));
+	/* 退出CFI模式 */
+	NorCmd(0, 0xf0);
+	
+	printf("vendor id = 0x%x, device id = 0x%x, nor size = 0x%x, %dM\n\r", iVendor, iDevice, uiSize, uiSize/(1024*1024));
+
+	Convert(result,(unsigned int)iVendor,16);
+	PrintFbString8x16(20, 70, "vendor id  =  0x", 0x0, 0);
+	PrintFbString8x16(148, 70, result, 0x0, 0);
+
+	Convert(result,(unsigned int)iDevice,16);
+	PrintFbString8x16(20, 90, "device id  =  0x", 0x0, 0);
+	PrintFbString8x16(148, 90, result, 0x0, 0);
+	
+	Convert(result,(unsigned int)uiSize,16);
+	PrintFbString8x16(20, 110, "nor  size  =  0x", 0x0, 0);
+	PrintFbString8x16(148, 110, result, 0x0, 0);
+	PrintFbString8x16(212, 110, "byte, ", 0x0, 0);
+	
+	Convert(result,(unsigned int)(uiSize/(1024*1024)),10);
+	PrintFbString8x16(20, 130, "nor  size  =    ", 0x0, 0);
+	PrintFbString8x16(148, 130, result, 0x0, 0);
+	PrintFbString8x16(210, 130, "M", 0x0, 0);
+
+	PrintFbString8x16(40, 240, "If you want to test the nor read-write function, please connect to the PC serial port tool and re-enter this page.", 0xff0000, 0);
+
+	PrintFbString16x32(288, 40, "NOTE:", 0x0b1746, 0);
+	PrintFbString8x16(320, 85, 	"Please carefully per", 0x4169e1, 0);
+	PrintFbString8x16(288, 110, "form the erase and write", 0x4169e1, 0);
+	PrintFbString8x16(288, 130, "operations, otherwise th", 0x4169e1, 0);
+	PrintFbString8x16(288, 155, "e program may die!", 0x4169e1, 0);
+
+	/* 打印菜单, 供我们选择测试内容 */
+	printf("\n\r");
+	printf("       Nor Flash Test\n\r");		
+	printf("[s] Scan nor flash\n\r");
+	printf("[e] Erase nor flash\n\r");
+	printf("[w] Write nor flash\n\r");
+	printf("[r] Read nor flash\n\r");
+	printf("[q] quit\n\r");
+	printf("Enter selection: ");
+	while (1)
+	{
+		if(isClickReturn())
+		{
+			MainPage();
+			break;
+		}
+
+		c = GetChar();
+		printf("%c\n\r", c);
+		if(c == 0)
+		{
+			break;
+		}
+		
+
+		/* 测试内容:
+		 * 1. 识别nor flash
+		 * 2. 擦除nor flash某个扇区
+		 * 3. 编写某个地址
+		 * 4. 读某个地址
+		 */
+		switch (c)		 
+		{
+			case 'q':
+			case 'Q':
+				MainPage();
+				return;
+				break;
+				
+			case 's':
+			case 'S':
+				DoScanNorFlash();
+				printf("\n\r");
+				printf("       Nor Flash Test\n\r");		
+				printf("[s] Scan nor flash\n\r");
+				printf("[e] Erase nor flash\n\r");
+				printf("[w] Write nor flash\n\r");
+				printf("[r] Read nor flash\n\r");
+				printf("[q] quit\n\r");
+				printf("Enter selection: ");
+				break;
+
+			case 'e':
+			case 'E':
+				DoEraseNorFlash();
+				printf("\n\r");
+				printf("	   Nor Flash Test\n\r");		
+				printf("[s] Scan nor flash\n\r");
+				printf("[e] Erase nor flash\n\r");
+				printf("[w] Write nor flash\n\r");
+				printf("[r] Read nor flash\n\r");
+				printf("[q] quit\n\r");
+				printf("Enter selection: ");
+				break;
+
+			case 'w':
+			case 'W':
+				DoWriteNorFlash();
+				printf("\n\r");
+				printf("	   Nor Flash Test\n\r");		
+				printf("[s] Scan nor flash\n\r");
+				printf("[e] Erase nor flash\n\r");
+				printf("[w] Write nor flash\n\r");
+				printf("[r] Read nor flash\n\r");
+				printf("[q] quit\n\r");
+				printf("Enter selection: ");
+				break;
+
+			case 'r':
+			case 'R':
+				DoReadNorFlash();
+				printf("\n\r");
+				printf("	   Nor Flash Test\n\r");		
+				printf("[s] Scan nor flash\n\r");
+				printf("[e] Erase nor flash\n\r");
+				printf("[w] Write nor flash\n\r");
+				printf("[r] Read nor flash\n\r");
+				printf("[q] quit\n\r");
+				printf("Enter selection: ");
+				break;
+			default:
+				break;
+		}
+	}
+
+}
 
 
 
