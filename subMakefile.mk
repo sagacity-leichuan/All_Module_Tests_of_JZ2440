@@ -33,7 +33,16 @@ hardware_lcd_obj_c    	+= font_16x32.o
 hardware_ts_obj_c		:=touchscreen.o
 hardware_ts_obj_c		+=tslib.o
 
-hardware_key_obj_c		:=key.o
+hardware_key_obj_c		:=key.o  
+
+hardware_i2c_obj_c		:=i2c_controller.o
+hardware_i2c_obj_c		+=s3c2440_i2c_controller.o
+hardware_i2c_obj_c		+=at24cxx.o 
+
+hardware_spi_obj_c		:=spi_gpio_simulate.o
+hardware_spi_obj_c		+=spi_s32440_controller.o
+hardware_spi_obj_c		+=spi_flash.o
+hardware_spi_obj_c		+=oled.o     
 
 SUB_DIR     := MAIN
 SUB_DIR     += HARDWARE/LED
@@ -42,3 +51,5 @@ SUB_DIR     += HARDWARE/NOR
 SUB_DIR     += HARDWARE/LCD
 SUB_DIR     += HARDWARE/TS
 SUB_DIR     += HARDWARE/KEY
+SUB_DIR     += HARDWARE/I2C
+SUB_DIR     += HARDWARE/SPI

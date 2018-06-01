@@ -25,6 +25,7 @@
 
 #define ORIGINAL	100
 
+#define SPIGPIO
 
 
 
@@ -67,6 +68,7 @@ void InitButton(void);
 void MainPage(void);
 void GetTestItem(int* value);
 int isClickReturn(void);
+void TestSPI(void);
 
 #endif
 

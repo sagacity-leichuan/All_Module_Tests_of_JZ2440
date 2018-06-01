@@ -13,7 +13,10 @@
 #include "tslib.h"
 #include "nand_flash.h"
 #include "key.h"
-
+#include "i2c_controller.h"
+#include "oled.h"
+#include "spi_flash.h"
+#include "spi_gpio_simulate.h"
 
 
 STsParameters g_sTsParam;
@@ -273,7 +276,10 @@ void GetTestItem(int* value)
 	DisplayTestItemIcon(g_sButton[*value].iX,g_sButton[*value].iY,g_sButton[*value].sName,0x0);
 
 	ReadTs(&x, &y, &iPressure);
+	Delay(1000);
+	
 	ReadTs(&x, &y, &iPressure);
+	Delay(1000);
 	
 	return;
 }
@@ -383,7 +389,8 @@ void BootInit(void)
 	InitTimer();
 	InitTouchScreen();
 	GetLcdParamsforFb();
-	InitCalibration();	
+	InitCalibration();
+	
 }
 
 
@@ -509,5 +516,30 @@ void MainPage(void)
 	
 }
 
+void TestSPI(void)
+{
+    unsigned int mid, pid;
+    char str[200];
+#ifdef SPIGPIO
+    InitSPIGPIO();
+#else
+	InitSPIS3c2440Controller();
+#endif
+    
+    InitOLED();
+    PrintOLED(0,0,"leichuan, sagacity_lc@163.com");
+
+    ReadSPIFlashID(&mid, &pid);
+    printf("SPI Flash : MID = 0x%02x, PID = 0x%02x\n\r", mid, pid);
+    
+    InitSPIFlash();
+    
+    EraseSPIFlashSector(4096);
+    ProgramSPIFlash(4096, "leichuan", 8);
+    ReadSPIFlash(4096, str, 8);
+    printf("SPI Flash read from 4096: %s\n\r", str);
+    PrintOLED(6,0,str);
+
+}
 
 

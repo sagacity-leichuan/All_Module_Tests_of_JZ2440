@@ -8,6 +8,10 @@
 #include "nand_flash.h"
 #include "nor_flash.h"
 #include "timer.h"
+#include "at24cxx.h"
+#include "i2c_controller.h"
+
+
 
 int main(void)
 {
@@ -42,9 +46,14 @@ int main(void)
 				TestTouchScreen();
 				break;
 			case TEST_I2C:
+				TestAt24cxx();
+				break;
 			case TEST_SPI:
+				TestSPI();
+				break;
 			case TEST_IDR:
 			case TEST_DHT1:
+			case TEST_DS18:
 			case TEST_0038T:
 			case TEST_NOR:
 				StopTimer();
