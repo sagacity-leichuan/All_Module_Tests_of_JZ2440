@@ -15,8 +15,10 @@ int RegisterTimer(char *name, TimerFunc fp);
 int UnregisterTimer(char *name);
 int StopTimer(void);
 int StartTimer(void);
-
-
+void uDelay(int n);
+void mDelay(int m);
+unsigned long long GetSystemTimeUs(void);
+unsigned int DeltaTimeUs(unsigned long long pre, unsigned long long now);
 
 #endif
 

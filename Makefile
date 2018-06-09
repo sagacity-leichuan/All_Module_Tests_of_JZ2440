@@ -26,7 +26,7 @@ export CC LD OBJCOPY OBJDUMP INCLUDEDIR CFLAGS CPPFLAGS AR LDFLASG hardware_obj_
 export TOP_DIR BIN_DIR OBJ_DIR BIN TEMP_DIR LDS ELF DIS objs_S objs_c  SUB_DIR 
 export hardware_lcd_obj_c hardware_led_obj_c hardware_nand_obj_c hardware_nor_obj_c
 export objs_relocate_c hardware_ts_obj_c hardware_key_obj_c hardware_i2c_obj_c 
-export hardware_spi_obj_c
+export hardware_spi_obj_c hardware_sensor_obj_c
 
 all: CHECKDIR $(SUB_DIR) BIN_PROCESS
 

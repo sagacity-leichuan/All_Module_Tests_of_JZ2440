@@ -5,6 +5,8 @@
 #include "font.h"
 
 int iTestStatus = 0;
+int iPhotoresistorEnd = 0;
+
 /* SRCPND 用来显示哪个中断产生了, 需要清除对应位
  * bit0-eint0
  * bit2-eint2
@@ -131,6 +133,8 @@ void KeyEintIrq(int irq)
 					Delay(1000000);
 					PrintFbString8x16(150, 110, "KEY_EINT19 is pressed!", 0xffffff,0);
 				}
+
+				iPhotoresistorEnd = 1;
 				GPFDAT &= ~((1<<4) | (1<<5) | (1<<6));
 			}
 		}

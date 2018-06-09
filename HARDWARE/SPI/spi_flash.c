@@ -2,6 +2,9 @@
 #include "spi_gpio_simulate.h"
 #include "spi_s3c2440_controller.h"
 #include "function.h"
+#include "my_printf.h"
+#include "string_utils.h"
+
 
 
 static void SetSPIFlashCS(char val)
@@ -259,4 +262,76 @@ void InitSPIFlash(void)
     SPIFlashClearProtectForData();
 }
 
+void DoWriteSPIFLASH(void)
+{
+	unsigned int addr;
+	unsigned char str[100];
+	
+	/* 获得地址 */
+	printf("Enter the address of sector to write: ");
+	addr = get_uint();
+
+	printf("Enter the string to write: ");
+	gets((char *)str);
+
+	printf("writing ...\n\r");
+	ProgramSPIFlash(addr, str, strlen((char *)str)+1);
+}
+
+
+void DoReadSPIFLASH(void)
+{
+	unsigned int addr;
+	volatile unsigned char *p;
+	int i, j;
+	unsigned char c;
+	unsigned char str[16];
+	unsigned char buf[64];
+	
+	/* 获得地址 */
+	printf("Enter the address to read: ");
+	addr = get_uint();
+
+	ReadSPIFlash(addr, buf, 64);
+	p = (volatile unsigned char *)buf;
+
+	printf("Data : \n\r");
+	/* 长度固定为64 */
+	for (i = 0; i < 4; i++)
+	{
+		/* 每行打印16个数据 */
+		for (j = 0; j < 16; j++)
+		{
+			/* 先打印数值 */
+			c = *p++;
+			str[j] = c;
+			printf("%02x ", c);
+		}
+
+		printf("   ; ");
+
+		for (j = 0; j < 16; j++)
+		{
+			/* 后打印字符 */
+			if (str[j] < 0x20 || str[j] > 0x7e)  /* 不可视字符 */
+				PutChar('.');
+			else
+				PutChar(str[j]);
+		}
+		printf("\n\r");
+	}
+
+}
+
+void DoEraseSPIFLASH(void)
+{
+	unsigned int addr;
+	
+	/* 获得地址 */
+	printf("Enter the address of sector to erase: ");
+	addr = get_uint();
+
+	printf("erasing ...\n\r");
+	EraseSPIFlashSector(addr);
+}
 

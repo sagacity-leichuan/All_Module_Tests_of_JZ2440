@@ -379,6 +379,13 @@ void Convert(unsigned char buf[],unsigned int c, int radix)
 	unsigned char chBuf[33];
 	int i = 0;
 	int j;
+
+	if(c == 0)
+	{
+		buf[0] = '0';
+		buf[1] = '\0';
+		return;
+	}
 	
 	while(c != 0)  
     {  

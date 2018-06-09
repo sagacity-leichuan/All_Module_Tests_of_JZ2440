@@ -328,7 +328,7 @@ int ReadTs(int *lcd_x, int *lcd_y, int *lcd_pressure)
 		return -1;
 	}
 
-	printf(" tmp_x = %d, tmp_y = %d\n\r", tmp_x, tmp_y);	
+	printf(" tmp_x = %d, tmp_y = %d ts_pressure = %d\n\r", tmp_x, tmp_y,ts_pressure);	
 	
 	*lcd_x = tmp_x;
 	*lcd_y = tmp_y;

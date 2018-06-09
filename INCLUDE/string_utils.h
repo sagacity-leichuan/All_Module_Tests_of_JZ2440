@@ -9,6 +9,8 @@ int get_int(void);
 unsigned int get_uint(void);
 unsigned int strlen(const char * s);
 int strcmp(const char * cs,const char * ct);
+void *memcpy(void *dest, const void *src, int count);
+
 
 
 

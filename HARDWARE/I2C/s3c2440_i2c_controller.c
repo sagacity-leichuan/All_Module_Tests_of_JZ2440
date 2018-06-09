@@ -39,11 +39,11 @@ void I2cInterruptFunc(int irq)
 	unsigned int iicstat = IICSTAT;
 	//unsigned int iiccon;
 
-	printf("i2c_interrupt_func! flags = %d\n\r", g_psCurMsg->iFlags);
+	//printf("i2c_interrupt_func! flags = %d\n\r", g_psCurMsg->iFlags);
 	
 	g_psCurMsg->iCntTransferred++;
 	
-	printf("i2c_interrupt_func! g_psCurMsg->iCntTransferred = %d\n\r", g_psCurMsg->iCntTransferred);
+	//printf("i2c_interrupt_func! g_psCurMsg->iCntTransferred = %d\n\r", g_psCurMsg->iCntTransferred);
 	/* 每传输完一个数据将产生一个中断 */
 
 	/* 对于每次传输, 第1个中断是"已经发出了设备地址" */
@@ -64,8 +64,6 @@ void I2cInterruptFunc(int irq)
 				IICCON &= ~(1<<4);
 				g_psCurMsg->iErr = -1;
 				printf("tx err, no ack\n\r");
-				Delay(1000);
-				printf("write Transfer die die die\n\r");
 				return;
 			}
 		}
@@ -101,8 +99,6 @@ void I2cInterruptFunc(int irq)
 				IICCON &= ~(1<<4);
 				g_psCurMsg->iErr = -1;
 				printf("rx err, no ack\n\r");
-				printf("read Transfer die die die\n\r");
-				Delay(1000);
 				return;
 			}
 			else  /* ack */
@@ -196,8 +192,7 @@ int DoMasterTx(PSI2cMsg msg)
 	/* 后续的传输由中断驱动 */
 
 	/* 循环等待中断处理完毕 */
-	while (!msg->iErr && msg->iCntTransferred != msg->iLen)
-		printf("DoMasterTx  kai zhu le \n\r");
+	while (!msg->iErr && msg->iCntTransferred != msg->iLen);
 
 	if (msg->iErr)
 	{

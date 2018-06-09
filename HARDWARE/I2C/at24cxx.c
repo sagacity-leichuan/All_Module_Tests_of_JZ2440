@@ -5,6 +5,11 @@
 #include "font.h"
 #include "string_utils.h"
 #include "my_printf.h"
+#include "timer.h"
+#include "spi_flash.h"
+#include "spi_gpio_simulate.h"
+
+
 
 #define AT24CXX_ADDR 0x50
 
@@ -155,18 +160,34 @@ void DoReadAt24cxx(void)
 void TestAt24cxx(void)
 {
 	char c;
-
-	/* 初始化 */
-	InitI2c();
+	unsigned int mid = 0, pid = 0;
 
 	/* 清屏 */
 	ClearScreen(0xffffff);
 
 	/* 显示文字提示 */
-	PrintFbString16x32(130, 5, "I2C-AT24cxx TEST", 0xe3170d, 0);
-	DisplayReturnButton();
+	PrintFbString16x32(130, 5, "I2C-AT24cxx TEST", 0xe3170d, 0);	
 
+	/* 初始化 */
+#ifdef SPIGPIO
+	InitSPIGPIO();
+#else
+	InitSPIS3c2440Controller();
+#endif
+	ReadSPIFlashID(&mid, &pid);
 
+	if((mid == 0xff) || (pid  == 0xff))
+	{
+		PrintFbString8x16(40, 120, "The corresponding module failed to connect properly!!!", 0x4169e1, 1);
+		mDelay(5000);
+		MainPage();
+		return;
+	}
+
+	/* 初始化 */
+	InitI2c();
+
+	DisplayReturnButton();	
 	PrintFbString16x32(90, 40, "NOTE:", 0x0b1746, 0);
 	PrintFbString8x16(122, 85, 	"You can feel free to", 0x4169e1, 0);
 	PrintFbString8x16(90, 110, "test the read and write f", 0x4169e1, 0);

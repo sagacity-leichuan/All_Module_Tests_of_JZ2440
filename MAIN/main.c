@@ -10,6 +10,7 @@
 #include "timer.h"
 #include "at24cxx.h"
 #include "i2c_controller.h"
+#include "sensor.h"
 
 
 
@@ -51,10 +52,19 @@ int main(void)
 			case TEST_SPI:
 				TestSPI();
 				break;
-			case TEST_IDR:
+			case TEST_IDR: 
+				TestPhotoresistor();   //light dependent resistors test
+				InitTouchScreen();
+				break;
 			case TEST_DHT1:
+				TestDht11();
+				break;
 			case TEST_DS18:
+				TestDs18b20();
+				break;
 			case TEST_0038T:
+				TestIrdaNec();
+				break;
 			case TEST_NOR:
 				StopTimer();
 				TestNorFlash();

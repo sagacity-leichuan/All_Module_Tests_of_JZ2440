@@ -180,6 +180,9 @@ int isClickReturn(void)
 		Delay(2000);
 	}
 
+	ReadTs(&x, &y, &iPressure);
+	ReadTs(&x, &y, &iPressure);
+	ReadTs(&x, &y, &iPressure);
 	return iRes;
 }
 
@@ -195,7 +198,6 @@ void ClickedButton(int x,int y,char * name,unsigned int color)
 
 void GetTestItem(int* value)
 {
-	int i = 0;
 	int x = 0;
 	int y = 0;
 	int iXsum = 0;
@@ -206,82 +208,81 @@ void GetTestItem(int* value)
 	int iPressure = 0;
 
 	ReadTs(&x, &y, &iPressure);
-
 	if(x == 0 && y == 0 && iPressure == 0)
 	{
-		return ;	
+		ReadTs(&x, &y, &iPressure);
+		ReadTs(&x, &y, &iPressure);
+		ReadTs(&x, &y, &iPressure);
+		return;
 	}
 	else
 	{
 		iXsum += x;
 		iYsum += y;
 		iPreX = x;
-	   	iPreY = y;		
-		iCnt++;
+	   	iPreY = y;
+	   	iCnt++;
 
-		for(i=0; i<5; i++)
+		while(iPressure)
 		{
+			x = 0;
+			y = 0;
+			iPressure = 0;
 			ReadTs(&x, &y, &iPressure);
-			if(x != 0 || y != 0 || iPressure != 0)
+			if(x<iPreX+30 && x>iPreX-30 && y<iPreY+30 && y>iPreY-30)
 			{
-				if(x<iPreX+20 && x>iPreX-20 && y<iPreY+20 && y>iPreY-20)
-				{
-					iXsum += x;
-					iYsum += y;
-					iPreX = x;
-	   				iPreY = y;
-					iCnt++;
-				}
-				
+				iXsum += x;
+				iYsum += y;
+				iPreX = x;
+   				iPreY = y;
+				iCnt++;
 			}
-
 		}
-	}
+		
+		x = iXsum/iCnt;
+		y = iYsum/iCnt;
+		
+		if( (x > g_sButton[TEST_LED].iX) && (x < g_sButton[TEST_LED].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_LED].iY) && (y < g_sButton[TEST_LED].iY+BUTTON_HIGH))
+			*value = TEST_LED;
+		else if( (x > g_sButton[TEST_KEY].iX) && (x < g_sButton[TEST_KEY].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_KEY].iY) && (y < g_sButton[TEST_KEY].iY+BUTTON_HIGH))
+			*value = TEST_KEY;
+		else if( (x > g_sButton[TEST_LCD].iX) && (x < g_sButton[TEST_LCD].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_LCD].iY) && (y < g_sButton[TEST_LCD].iY+BUTTON_HIGH))
+			*value = TEST_LCD;
+		else if( (x > g_sButton[TEST_TS].iX) && (x < g_sButton[TEST_TS].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_TS].iY) && (y < g_sButton[TEST_TS].iY+BUTTON_HIGH))
+			*value = TEST_TS;
+		else if( (x > g_sButton[TEST_I2C].iX) && (x < g_sButton[TEST_I2C].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_I2C].iY) && (y < g_sButton[TEST_I2C].iY+BUTTON_HIGH))
+			*value = TEST_I2C;
+		else if( (x > g_sButton[TEST_SPI].iX) && (x < g_sButton[TEST_SPI].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_SPI].iY) && (y < g_sButton[TEST_SPI].iY+BUTTON_HIGH))
+			*value = TEST_SPI;
+		else if( (x > g_sButton[TEST_IDR].iX) && (x < g_sButton[TEST_IDR].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_IDR].iY) && (y < g_sButton[TEST_IDR].iY+BUTTON_HIGH))
+			*value = TEST_IDR;
+		else if( (x > g_sButton[TEST_DHT1].iX) && (x < g_sButton[TEST_DHT1].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_DHT1].iY) && (y < g_sButton[TEST_DHT1].iY+BUTTON_HIGH))
+			*value = TEST_DHT1;
+		else if( (x > g_sButton[TEST_DS18].iX) && (x < g_sButton[TEST_DS18].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_DS18].iY) && (y < g_sButton[TEST_DS18].iY+BUTTON_HIGH))
+			*value = TEST_DS18;
+		else if( (x > g_sButton[TEST_0038T].iX) && (x < g_sButton[TEST_0038T].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_0038T].iY) && (y < g_sButton[TEST_0038T].iY+BUTTON_HIGH))
+			*value = TEST_0038T;
+		else if( (x > g_sButton[TEST_NOR].iX) && (x < g_sButton[TEST_NOR].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_NOR].iY) && (y < g_sButton[TEST_NOR].iY+BUTTON_HIGH))
+			*value = TEST_NOR;
+		else if( (x > g_sButton[TEST_NAND].iX) && (x < g_sButton[TEST_NAND].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_NAND].iY) && (y < g_sButton[TEST_NAND].iY+BUTTON_HIGH))
+			*value = TEST_NAND;
 
-	x = iXsum/iCnt;
-	y = iYsum/iCnt;
+		if(*value != ORIGINAL)
+		{
+			printf("GetTestItem x = %d,y = %d\n\r",x,y);
+			ClickedButton(g_sButton[*value].iX,g_sButton[*value].iY,g_sButton[*value].sName,0xFFFFFF);
+			Delay(20000);
+		}
 
-	if( (x > g_sButton[TEST_LED].iX) && (x < g_sButton[TEST_LED].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_LED].iY) && (y < g_sButton[TEST_LED].iY+BUTTON_HIGH))
-		*value = TEST_LED;
-	else if( (x > g_sButton[TEST_KEY].iX) && (x < g_sButton[TEST_KEY].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_KEY].iY) && (y < g_sButton[TEST_KEY].iY+BUTTON_HIGH))
-		*value = TEST_KEY;
-	else if( (x > g_sButton[TEST_LCD].iX) && (x < g_sButton[TEST_LCD].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_LCD].iY) && (y < g_sButton[TEST_LCD].iY+BUTTON_HIGH))
-		*value = TEST_LCD;
-	else if( (x > g_sButton[TEST_TS].iX) && (x < g_sButton[TEST_TS].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_TS].iY) && (y < g_sButton[TEST_TS].iY+BUTTON_HIGH))
-		*value = TEST_TS;
-	else if( (x > g_sButton[TEST_I2C].iX) && (x < g_sButton[TEST_I2C].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_I2C].iY) && (y < g_sButton[TEST_I2C].iY+BUTTON_HIGH))
-		*value = TEST_I2C;
-	else if( (x > g_sButton[TEST_SPI].iX) && (x < g_sButton[TEST_SPI].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_SPI].iY) && (y < g_sButton[TEST_SPI].iY+BUTTON_HIGH))
-		*value = TEST_SPI;
-	else if( (x > g_sButton[TEST_IDR].iX) && (x < g_sButton[TEST_IDR].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_IDR].iY) && (y < g_sButton[TEST_IDR].iY+BUTTON_HIGH))
-		*value = TEST_IDR;
-	else if( (x > g_sButton[TEST_DHT1].iX) && (x < g_sButton[TEST_DHT1].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_DHT1].iY) && (y < g_sButton[TEST_DHT1].iY+BUTTON_HIGH))
-		*value = TEST_DHT1;
-	else if( (x > g_sButton[TEST_DS18].iX) && (x < g_sButton[TEST_DS18].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_DS18].iY) && (y < g_sButton[TEST_DS18].iY+BUTTON_HIGH))
-		*value = TEST_DS18;
-	else if( (x > g_sButton[TEST_0038T].iX) && (x < g_sButton[TEST_0038T].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_0038T].iY) && (y < g_sButton[TEST_0038T].iY+BUTTON_HIGH))
-		*value = TEST_0038T;
-	else if( (x > g_sButton[TEST_NOR].iX) && (x < g_sButton[TEST_NOR].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_NOR].iY) && (y < g_sButton[TEST_NOR].iY+BUTTON_HIGH))
-		*value = TEST_NOR;
-	else if( (x > g_sButton[TEST_NAND].iX) && (x < g_sButton[TEST_NAND].iX+BUTTON_LENGTH) && (y > g_sButton[TEST_NAND].iY) && (y < g_sButton[TEST_NAND].iY+BUTTON_HIGH))
-		*value = TEST_NAND;
+		DisplayTestItemIcon(g_sButton[*value].iX,g_sButton[*value].iY,g_sButton[*value].sName,0x0);
 
-	if(*value != ORIGINAL)
-	{
-		printf(" x = %d,y = %d\n\r",x,y);
-		ClickedButton(g_sButton[*value].iX,g_sButton[*value].iY,g_sButton[*value].sName,0xFFFFFF);
-		Delay(20000);
-	}
-
-	DisplayTestItemIcon(g_sButton[*value].iX,g_sButton[*value].iY,g_sButton[*value].sName,0x0);
-
-	ReadTs(&x, &y, &iPressure);
-	Delay(1000);
-	
-	ReadTs(&x, &y, &iPressure);
-	Delay(1000);
-	
-	return;
+		ReadTs(&x, &y, &iPressure);
+		ReadTs(&x, &y, &iPressure);
+		ReadTs(&x, &y, &iPressure);
+		printf("GetTestItem iCnt = %d\n\r",iCnt);
+		   	
+	}	
+	return;	
 }
 
 static void InitTsParam(void)
@@ -469,6 +470,7 @@ void MainPage(void)
 	unsigned int uiFbBase;
 	int iXres, iYres, iBpp;
 	int x, y;
+	int iPressure;
 	int i;
 	unsigned char *puchBpp8;
 	unsigned short *pusBpp16;
@@ -513,32 +515,136 @@ void MainPage(void)
 	{
 		DisplayTestItemIcon(g_sButton[i].iX,g_sButton[i].iY,g_sButton[i].sName,iRgb);
 	}
+
+	ReadTs(&x, &y, &iPressure);
+	ReadTs(&x, &y, &iPressure);
+	ReadTs(&x, &y, &iPressure);
 	
 }
 
 void TestSPI(void)
 {
-    unsigned int mid, pid;
-    char str[200];
+	unsigned int mid = 0, pid = 0;
+	char c;
+
+	/* 初始化 */
 #ifdef SPIGPIO
-    InitSPIGPIO();
+	InitSPIGPIO();
 #else
 	InitSPIS3c2440Controller();
 #endif
-    
-    InitOLED();
+
+	/* 清屏 */
+	ClearScreen(0xffffff);
+
+	/* 显示文字提示 */
+	PrintFbString16x32(90, 5, "SPI-Flash/OLED TEST", 0xe3170d, 0);
+	
+	InitOLED();
     PrintOLED(0,0,"leichuan, sagacity_lc@163.com");
 
     ReadSPIFlashID(&mid, &pid);
+ 	
     printf("SPI Flash : MID = 0x%02x, PID = 0x%02x\n\r", mid, pid);
+
+	if((mid == 0xff) || (pid  == 0xff))
+	{
+		PrintFbString8x16(40, 120, "The corresponding module failed to connect properly!!!", 0x4169e1, 1);
+		mDelay(5000);
+		MainPage();
+		return;
+	}
+
+	
     
     InitSPIFlash();
     
-    EraseSPIFlashSector(4096);
-    ProgramSPIFlash(4096, "leichuan", 8);
-    ReadSPIFlash(4096, str, 8);
-    printf("SPI Flash read from 4096: %s\n\r", str);
-    PrintOLED(6,0,str);
+	/* 清屏 */
+	ClearScreen(0xffffff);
+
+	/* 显示文字提示 */
+	PrintFbString16x32(90, 5, "SPI-Flash/OLED TEST", 0xe3170d, 0);
+	DisplayReturnButton();
+
+
+	PrintFbString16x32(90, 40, "NOTE:", 0x0b1746, 0);
+	PrintFbString8x16(122, 85, 	"You can feel free to", 0x4169e1, 0);
+	PrintFbString8x16(90, 110, "test the read and write f", 0x4169e1, 0);
+	PrintFbString8x16(90, 130, "unctions without any imp", 0x4169e1, 0);
+	PrintFbString8x16(90, 155, "act on the program!", 0x4169e1, 0);
+
+	PrintFbString8x16(40, 240, "If you want to test SPI-Flash read-write function, please connect to PC serial port tool and re-enter this page.", 0xff0000, 0);
+
+	/* 打印菜单, 供我们选择测试内容 */
+	printf("[w] Write SPI-Flash\n\r");
+	printf("[r] Read SPI-Flash\n\r");
+	printf("[e] Erase SPI-Flash\n\r");
+	printf("[q] quit\n\r");
+	printf("Enter selection: ");
+	while (1)
+	{
+		if(isClickReturn())
+		{
+			MainPage();
+			break;
+		}
+
+		c = GetChar();
+		
+		printf("%c\n\r", c);
+		
+		if(c == 0)
+		{
+			break;
+		}
+
+		/* 测试内容:
+		 * 3. 编写某个地址
+		 * 4. 读某个地址
+		 */
+		switch (c)		 
+		{
+			case 'q':
+			case 'Q':
+				MainPage();
+				return;
+				return;
+				break;
+				
+			case 'w':
+			case 'W':
+				DoWriteSPIFLASH();
+				printf("\n\r[w] Write SPI-Flash\n\r");
+				printf("[r] Read SPI-Flash\n\r");
+				printf("[e] Erase SPI-Flash\n\r");
+				printf("[q] quit\n\r");
+				printf("Enter selection: ");
+				break;
+
+			case 'r':
+			case 'R':
+				DoReadSPIFLASH();
+				printf("\n\r[w] Write SPI-Flash\n\r");
+				printf("[r] Read SPI-Flash\n\r");
+				printf("[e] Erase SPI-Flash\n\r");
+				printf("[q] quit\n\r");
+				printf("Enter selection: ");	
+				break;
+
+			case 'e':
+			case 'E':
+				DoEraseSPIFLASH();
+				printf("\n\r[w] Write SPI-Flash\n\r");
+				printf("[r] Read SPI-Flash\n\r");
+				printf("[e] Erase SPI-Flash\n\r");
+				printf("[q] quit\n\r");
+				printf("Enter selection: ");
+				break;
+				
+			default:
+				break;
+		}
+	}
 
 }
 
