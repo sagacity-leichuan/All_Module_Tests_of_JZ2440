@@ -194,3 +194,13 @@ int strcmp(const char * cs,const char * ct)
 	return __res;
 }
 
+void *memcpy(void *dest, const void *src, int count)
+{
+	char *tmp = dest;
+	const char *s = src;
+
+	while (count--)
+		*tmp++ = *s++;
+	return dest;
+}
+

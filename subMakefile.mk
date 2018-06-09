@@ -42,7 +42,15 @@ hardware_i2c_obj_c		+=at24cxx.o
 hardware_spi_obj_c		:=spi_gpio_simulate.o
 hardware_spi_obj_c		+=spi_s32440_controller.o
 hardware_spi_obj_c		+=spi_flash.o
-hardware_spi_obj_c		+=oled.o     
+hardware_spi_obj_c		+=oled.o
+
+hardware_sensor_obj_c	:=adc.o  
+hardware_sensor_obj_c	+=circle_buffer.o
+hardware_sensor_obj_c	+=dht11.o
+hardware_sensor_obj_c	+=ds18b20.o
+hardware_sensor_obj_c	+=irda_rawdata.o
+hardware_sensor_obj_c	+=irda_nec.o
+hardware_sensor_obj_c	+=photoresistor.o   
 
 SUB_DIR     := MAIN
 SUB_DIR     += HARDWARE/LED
@@ -53,3 +61,4 @@ SUB_DIR     += HARDWARE/TS
 SUB_DIR     += HARDWARE/KEY
 SUB_DIR     += HARDWARE/I2C
 SUB_DIR     += HARDWARE/SPI
+SUB_DIR     += HARDWARE/SENSOR
