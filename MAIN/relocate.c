@@ -68,4 +68,19 @@ void CleanBss(void)
 	}
 }
 
+void InitSdram(void)
+{
+	BWSCON = 0x22000000;
+
+	BANKCON6 = 0x18001;
+	BANKCON7 = 0x18001;
+
+	REFRESH  = 0x8404f5;
+
+	BANKSIZE = 0xb1;
+
+	MRSRB6   = 0x20;
+	MRSRB7   = 0x20;
+}
+
 

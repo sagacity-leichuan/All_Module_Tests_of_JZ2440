@@ -2,12 +2,12 @@
 objs_S    	:= start.o
 objs_S    	+= lib1funcs.o 
 
-objs_relocate_c    	+= relocate.o
+objs_uart_c    	:= uart.o
+
+objs_relocate_c    	:= relocate.o
 
 hardware_nand_obj_c		:= nand_flash.o
 
-objs_c    	+= uart.o
-objs_c    	+= init.o
 objs_c    	+= main.o
 objs_c    	+= my_printf.o
 objs_c    	+= string_utils.o

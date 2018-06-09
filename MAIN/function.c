@@ -1,6 +1,5 @@
 #include "function.h"
 #include "my_printf.h"
-#include "init.h"
 #include "s3c2440_soc.h"
 #include "uart.h"
 #include "font.h"
