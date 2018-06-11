@@ -1,6 +1,20 @@
+/**************************************************************************
+  * @brief      : JZ2440v2开发板ADC采集代码源文件
+  * @version    : V0.0
+  * @note       : 无
+  * @history    : 无
+***************************************************************************/
+
 #include "s3c2440_soc.h"
 
-void InitADC(int channel)
+/**************************************************************************
+  * @brief       :  初始化ADC
+  * @param[in]   :  channel 代表ADC的采集通道，取值为 {0,1,2,3,4,5,7}
+  * @param[out]  :  无
+  * @return      :  无
+  * @others      :  无
+***************************************************************************/
+static void InitADC(int channel)
 {
 	/* [15] : ECFLG,  1 = End of A/D conversion
 	 * [14] : PRSCEN, 1 = A/D converter prescaler enable
@@ -14,6 +28,13 @@ void InitADC(int channel)
 	ADCDLY = 0xff;	
 }
 
+/**************************************************************************
+  * @brief       :  读取ADC转换的数据
+  * @param[in]   :  channel 代表ADC的采集通道，取值为 {0,1,2,3,4,5,7}
+  * @param[out]  :  无
+  * @return      :  ADC读取并转换完成之后的数据
+  * @others      :  无
+***************************************************************************/
 int ReadADC(int channel)
 {
 	InitADC(channel);

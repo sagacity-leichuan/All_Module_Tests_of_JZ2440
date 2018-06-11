@@ -12,8 +12,6 @@
 #include "i2c_controller.h"
 #include "sensor.h"
 
-
-
 int main(void)
 {
 	int iTestItem = ORIGINAL;
@@ -22,7 +20,7 @@ int main(void)
 	
 	BootInit();
 
-	//BootScreen();
+	BootScreen();
 
 	MainPage();
 
@@ -79,7 +77,6 @@ int main(void)
 				break;
 		
 		}
-
 	}
 	return 0;
 }

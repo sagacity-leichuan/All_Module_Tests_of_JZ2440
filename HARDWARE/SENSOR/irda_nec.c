@@ -225,7 +225,13 @@ void TestIrdaNec(void)
 			count++;
 			printf("This is a repeat code\n\r");
 			Convert(chBuffer, count, 10);
-			PrintFbString8x16(150, 120, chBuffer, 0x4169e1, 1);
+			if(sizeof(chBuffer)==1)
+			{
+				chBuffer[1] = chBuffer[0];
+				chBuffer[0] = '0';
+				chBuffer[2] = '\0';
+			}
+			PrintFbString8x16(142, 120, chBuffer, 0x4169e1, 1);
 			PrintFbString8x16(158, 120, "th iteration of 0x", 0x4169e1, 1);
 			Convert(chBuffer, data, 16);
 			PrintFbString8x16(302, 120, chBuffer, 0x4169e1, 1);
@@ -234,7 +240,13 @@ void TestIrdaNec(void)
 			Delay(400000);
 			
 			Convert(chBuffer, count, 10);
-			PrintFbString8x16(150, 120, chBuffer, 0xffffff, 1);
+			if(sizeof(chBuffer)==1)
+			{
+				chBuffer[1] = chBuffer[0];
+				chBuffer[0] = '0';
+				chBuffer[2] = '\0';
+			}
+			PrintFbString8x16(142, 120, chBuffer, 0xffffff, 1);
 			PrintFbString8x16(158, 120, "th iteration of 0x", 0xffffff, 1);
 			Convert(chBuffer, data, 16);
 			PrintFbString8x16(302, 120, chBuffer, 0xffffff, 1);

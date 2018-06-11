@@ -1,3 +1,9 @@
+/**************************************************************************
+  * @brief      : JZ2440v2开发板I2C器件AT24C系列芯片测试代码源文件
+  * @version    : V0.0
+  * @note       : 无
+  * @history    : 无
+***************************************************************************/
 
 #include "i2c_controller.h"
 #include "function.h"
@@ -9,11 +15,19 @@
 #include "spi_flash.h"
 #include "spi_gpio_simulate.h"
 
-
-
 #define AT24CXX_ADDR 0x50
 
-int WriteAt24cxx(unsigned int addr, unsigned char *data, int len)
+/**************************************************************************
+  * @brief       :  AT24Cxx写函数
+  * @param[in]   :  addr  	数据写入地址(32位int型)		 范围(0到AT24Cxx容量之间)
+  				    data	写入数据的缓冲区首地址
+  				    len		写入数据的长度	范围(视需求所定而定，勿超过数据缓冲区长度)
+  * @param[out]  :  无
+  * @return      :  0	写入操作成功
+  					其他	写入操作失败，具体失败错误码参考相关文档
+  * @others      :  addr+len勿超过AT24Cxx容量
+***************************************************************************/
+static int WriteAt24cxx(unsigned int addr, unsigned char *data, int len)
 {
 	SI2cMsg msg;
 	int i;
@@ -48,8 +62,17 @@ int WriteAt24cxx(unsigned int addr, unsigned char *data, int len)
 	return 0;
 }
 
-
-int ReadAt24cxx(unsigned int addr, unsigned char *data, int len)
+/**************************************************************************
+  * @brief       :  AT24Cxx读函数
+  * @param[in]   :  addr  	读取数据的起始地址(32位int型)		 范围(0到AT24Cxx容量之间)
+  				    data	读取数据之后数据存储的缓冲区首地址
+  				    len		读取数据的长度	范围(视需求所定而定，勿超过数据缓冲区长度)
+  * @param[out]  :  无
+  * @return      :  0	读取操作成功
+  					其他	读取操作失败，具体失败错误码参考相关文档
+  * @others      :  addr+len勿超过AT24Cxx容量
+***************************************************************************/
+static int ReadAt24cxx(unsigned int addr, unsigned char *data, int len)
 {
 	SI2cMsg msg[2];
 	int err;
@@ -76,7 +99,14 @@ int ReadAt24cxx(unsigned int addr, unsigned char *data, int len)
 	return 0;
 }
 
-void DoWriteAt24cxx(void)
+/**************************************************************************
+  * @brief       :  AT24Cxx测试用的写函数
+  * @param[in]   :  无
+  * @param[out]  :  无
+  * @return      :  无
+  * @others      :  无
+***************************************************************************/
+static void DoWriteAt24cxx(void)
 {
 	unsigned int addr;
 	unsigned char str[100];
@@ -101,7 +131,14 @@ void DoWriteAt24cxx(void)
 	printf("at24cxx_write ret = %d\n\r", err);
 }
 
-void DoReadAt24cxx(void)
+/**************************************************************************
+  * @brief       :  AT24Cxx测试用的读函数
+  * @param[in]   :  无
+  * @param[out]  :  无
+  * @return      :  无
+  * @others      :  无
+***************************************************************************/
+static void DoReadAt24cxx(void)
 {
 	unsigned int addr;
 	int i, j;
@@ -156,7 +193,13 @@ void DoReadAt24cxx(void)
 	}
 }
 
-
+/**************************************************************************
+  * @brief       : AT24Cxx测试函数
+  * @param[in]   : 无
+  * @param[out]  : 无
+  * @return      : 无
+  * @others      : 无
+***************************************************************************/
 void TestAt24cxx(void)
 {
 	char c;

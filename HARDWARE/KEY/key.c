@@ -39,8 +39,7 @@ void KeyEintIrq(int irq)
 			if(iTestStatus)
 			{
 				PrintFbString8x16(150, 110, "KEY_EINT0 is released!", 0x0,1);
-				Delay(1000000);
-				PrintFbString8x16(150, 110, "KEY_EINT0 is released!", 0xffffff,0);
+				PrintFbString8x16(150, 110, "KEY_EINT0 is released!", 0xffffff,1);
 			}
 			GPFDAT |= (1<<6);
 		}
@@ -50,8 +49,7 @@ void KeyEintIrq(int irq)
 			if(iTestStatus)
 			{
 				PrintFbString8x16(150, 110, "KEY_EINT0 is pressed!", 0x0,1);
-				Delay(1000000);
-				PrintFbString8x16(150, 110, "KEY_EINT0 is pressed!", 0xffffff,0);
+				PrintFbString8x16(150, 110, "KEY_EINT0 is pressed!", 0xffffff,1);
 			}
 			GPFDAT &= ~(1<<6);
 		}
@@ -65,8 +63,7 @@ void KeyEintIrq(int irq)
 			if(iTestStatus)
 			{
 				PrintFbString8x16(150, 110, "KEY_EINT2 is released!", 0x0,1);
-				Delay(1000000);
-				PrintFbString8x16(150, 110, "KEY_EINT2 is released!", 0xffffff,0);
+				PrintFbString8x16(150, 110, "KEY_EINT2 is released!", 0xffffff,1);
 			}
 			GPFDAT |= (1<<5);
 		}
@@ -76,8 +73,7 @@ void KeyEintIrq(int irq)
 			if(iTestStatus)
 			{
 				PrintFbString8x16(150, 110, "KEY_EINT2 is pressed!", 0x0,1);
-				Delay(1000000);
-				PrintFbString8x16(150, 110, "KEY_EINT2 is pressed!", 0xffffff,0);
+				PrintFbString8x16(150, 110, "KEY_EINT2 is pressed!", 0xffffff,1);
 			}
 			GPFDAT &= ~(1<<5);
 		}
@@ -93,8 +89,7 @@ void KeyEintIrq(int irq)
 				if(iTestStatus)
 				{
 					PrintFbString8x16(150, 110, "KEY_EINT11 is released!", 0x0,1);
-					Delay(1000000);
-					PrintFbString8x16(150, 110, "KEY_EINT11 is released!", 0xffffff,0);
+					PrintFbString8x16(150, 110, "KEY_EINT11 is released!", 0xffffff,1);
 				}
 				GPFDAT |= (1<<4);
 			}
@@ -104,8 +99,7 @@ void KeyEintIrq(int irq)
 				if(iTestStatus)
 				{
 					PrintFbString8x16(150, 110, "KEY_EINT11 is pressed!", 0x0,1);
-					Delay(1000000);
-					PrintFbString8x16(150, 110, "KEY_EINT11 is pressed!", 0xffffff,0);
+					PrintFbString8x16(150, 110, "KEY_EINT11 is pressed!", 0xffffff,1);
 				}
 				GPFDAT &= ~(1<<4);
 			}
@@ -119,8 +113,7 @@ void KeyEintIrq(int irq)
 				if(iTestStatus)
 				{
 					PrintFbString8x16(150, 110, "KEY_EINT19 is released!", 0x0,1);
-					Delay(1000000);
-					PrintFbString8x16(150, 110, "KEY_EINT19 is released!", 0xffffff,0);
+					PrintFbString8x16(150, 110, "KEY_EINT19 is released!", 0xffffff,1);
 				}
 				GPFDAT |= ((1<<4) | (1<<5) | (1<<6));
 			}
@@ -130,8 +123,7 @@ void KeyEintIrq(int irq)
 				if(iTestStatus)
 				{
 					PrintFbString8x16(150, 110, "KEY_EINT19 is pressed!", 0x0,1);
-					Delay(1000000);
-					PrintFbString8x16(150, 110, "KEY_EINT19 is pressed!", 0xffffff,0);
+					PrintFbString8x16(150, 110, "KEY_EINT19 is pressed!", 0xffffff,1);
 				}
 
 				iPhotoresistorEnd = 1;
