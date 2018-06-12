@@ -1,3 +1,10 @@
+/**********************************************************************************
+  * @brief      : 	JZ2440v2开发板全测试主要功能函数代码头文件
+  * @version    : 	V0.0
+  * @note       : 	无
+  * @history    : 	无
+***********************************************************************************/
+
 #include "function.h"
 #include "my_printf.h"
 #include "s3c2440_soc.h"
@@ -22,12 +29,13 @@ STsParameters g_sTsParam;
 SButton g_sButton[12];
 SButton g_sButtonReturn;
 
-
-void Delay(volatile int d)
-{
-	while (d--);
-}
-
+/**********************************************************************************
+  * @brief       : 	初始化测试所需要的触摸屏按钮，共13个
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void InitButton(void)
 {
 	g_sButton[0].iID = TEST_LED;
@@ -125,6 +133,14 @@ void InitButton(void)
 
 }
 
+/**********************************************************************************
+  * @brief       : 	判断测试子页面的返回按钮是否被点击
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	1	测试子页面的返回按钮被点击
+  					0	测试子页面的返回按钮未被点击
+  * @others      : 	无
+***********************************************************************************/
 int isClickReturn(void)
 {
 	int i;
@@ -185,6 +201,16 @@ int isClickReturn(void)
 	return iRes;
 }
 
+/**********************************************************************************
+  * @brief       : 	当有触摸屏按钮被点击时改变按钮的颜色标识按钮被点击
+  * @param[in]   : 	x	被点击的按钮的x坐标
+  					y	被点击的按钮的y坐标
+  					name	被点击的按钮的名字
+  					color	被点击的按钮的名字的颜色
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void ClickedButton(int x,int y,char * name,unsigned int color)
 {
 	int i = 0;
@@ -195,6 +221,13 @@ void ClickedButton(int x,int y,char * name,unsigned int color)
 	return;
 }
 
+/**********************************************************************************
+  * @brief       : 	在主程序运行时用以获取测试项，通过检测主页面中的哪一个按钮被点击实现
+  * @param[in]   : 	无
+  * @param[out]  : 	value	用以存放测试项的id
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void GetTestItem(int* value)
 {
 	int x = 0;
@@ -284,6 +317,13 @@ void GetTestItem(int* value)
 	return;	
 }
 
+/**********************************************************************************
+  * @brief       : 	初始化触摸屏校准参数
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void InitTsParam(void)
 {
 	g_sTsParam.iFlag = 0;
@@ -300,6 +340,13 @@ static void InitTsParam(void)
 
 }
 
+/**********************************************************************************
+  * @brief       : 	初始化触摸屏校准
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void InitCalibration(void)
 {
 	unsigned int iFbBase;
@@ -348,6 +395,17 @@ void InitCalibration(void)
 	Delay(2500000);
 }
 
+
+/**********************************************************************************
+  * @brief       : 	在测试主页面的指定位置显示进入各个测试子项目的触摸屏按钮
+  * @param[in]   : 	x	显示触摸屏按钮的x坐标
+  					y	显示触摸屏按钮的y坐标
+  					name	显示触摸屏按钮的名字
+  					color	显示触摸屏按钮名字的颜色
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void DisplayTestItemIcon(int x,int y,char * name,unsigned int color)
 {
 	int i;
@@ -362,6 +420,13 @@ void DisplayTestItemIcon(int x,int y,char * name,unsigned int color)
 	return;
 }
 
+/**********************************************************************************
+  * @brief       : 	在测试子页面的指定位置显示返回主测试页面的触摸屏按钮
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void DisplayReturnButton(void)
 {
 	int i;
@@ -376,6 +441,13 @@ void DisplayReturnButton(void)
 	return;
 }
 
+/**********************************************************************************
+  * @brief       : 	程序启动的一系列初始化
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void BootInit(void)
 {
 	InitTsParam();
@@ -390,10 +462,15 @@ void BootInit(void)
 	InitTouchScreen();
 	GetLcdParamsforFb();
 	InitCalibration();
-	
 }
 
-
+/**********************************************************************************
+  * @brief       : 	程序启动欢迎界面及相关信息显示
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void BootScreen(void)
 {
 	unsigned int uiFbBase;
@@ -464,6 +541,13 @@ void BootScreen(void)
 }
 
 
+/**********************************************************************************
+  * @brief       : 	程序运行的主页面显示函数
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void MainPage(void)
 {
 	unsigned int uiFbBase;
@@ -521,6 +605,13 @@ void MainPage(void)
 	
 }
 
+/**********************************************************************************
+  * @brief       : 	jz2440开发板spi相关的模块测试函数程序，包括spi flash 和 oled
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void TestSPI(void)
 {
 	unsigned int mid = 0, pid = 0;
@@ -553,8 +644,6 @@ void TestSPI(void)
 		MainPage();
 		return;
 	}
-
-	
     
     InitSPIFlash();
     
@@ -644,7 +733,5 @@ void TestSPI(void)
 				break;
 		}
 	}
-
 }
-
 

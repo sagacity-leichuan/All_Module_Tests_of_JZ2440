@@ -1,11 +1,18 @@
+/**********************************************************************************
+  * @brief      : 	JZ2440v2开发板按键测试代码源文件
+  * @version    : 	V0.0
+  * @note       : 	无
+  * @history    : 	无
+***********************************************************************************/
+
 #include "key.h"
 #include "s3c2440_soc.h"
 #include "function.h"
 #include "framebuffer.h"
 #include "font.h"
 
-int iTestStatus = 0;
-int iPhotoresistorEnd = 0;
+int iTestStatus = 0;		//用于表示是否进入到了按键测试
+int iPhotoresistorEnd = 0;		//用于在进行光敏电阻测试时返回主页面的标志
 
 /* SRCPND 用来显示哪个中断产生了, 需要清除对应位
  * bit0-eint0
@@ -25,6 +32,13 @@ int iPhotoresistorEnd = 0;
  * bit5-eint8_23
  */
 
+/**********************************************************************************
+  * @brief       : 	按键中断处理函数
+  * @param[in]   : 	irq	中断号
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void KeyEintIrq(int irq)
 {
 	unsigned int val = EINTPEND;
@@ -135,6 +149,13 @@ void KeyEintIrq(int irq)
 	EINTPEND = val;
 }
 
+/****************************************************************************************
+  * @brief       : 	初始化按键的GPIO管脚
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+*****************************************************************************************/
 void InitKey(void)
 {
 	INTMSK &= ~((1<<0) | (1<<2) | (1<<5));
@@ -160,6 +181,13 @@ void InitKey(void)
 	RegisterIrq(5, KeyEintIrq);	
 }
 
+/**********************************************************************************************
+  * @brief       : 	测试按键功能，并在LCD中显示按键按下松开状态
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************************/
 void TestKey(void)
 {
 
@@ -177,6 +205,7 @@ void TestKey(void)
 		if(isClickReturn())
 		{
 			MainPage();
+			iTestStatus = 0;
 			break;
 		}	
 	}		

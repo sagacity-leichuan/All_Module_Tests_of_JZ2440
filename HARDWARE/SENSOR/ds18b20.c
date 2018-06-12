@@ -1,9 +1,9 @@
-/**********************************************************************************
+/****************************************************************************************************
   * @brief      : 	JZ2440v2开发板温度传感器DS18B20代码源文件
   * @version    : 	V0.0
   * @note       : 	无
   * @history    : 	无
-***********************************************************************************/
+*****************************************************************************************************/
 
 #include "s3c2440_soc.h"
 #include "timer.h"
@@ -252,7 +252,7 @@ static void WriteDs18b20FunctionCmd(unsigned char cmd)
   					1	读取失败
   * @others      : 	无
 ***********************************************************************************/
-int ReadDs18b20Rom(unsigned char rom[])
+static int ReadDs18b20Rom(unsigned char rom[])
 {
 	int i;
 	
@@ -272,7 +272,15 @@ int ReadDs18b20Rom(unsigned char rom[])
 	return 0;
 }
 
-int WaitDs18b20WhenProcessing(int timeout_us)
+/**********************************************************************************
+  * @brief       : 	在DS18B20工作时等待其就绪
+  * @param[in]   : 	time_out 	超时时间
+  * @param[out]  : 	无
+  * @return      : 	0	收到DS18B20的回应信号
+  					-1	未收到DS18B20的回应信号
+  * @others      : 	无
+***********************************************************************************/
+static int WaitDs18b20WhenProcessing(int timeout_us)
 {
 	while (timeout_us--)
 	{
@@ -283,7 +291,15 @@ int WaitDs18b20WhenProcessing(int timeout_us)
 	return -1;
 }
 
-int StartDs18b20Convert(void)
+/**********************************************************************************
+  * @brief       : 	启动DS18B20转换
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	0	启动成功
+  					-1	启动失败
+  * @others      : 	无
+***********************************************************************************/
+static int StartDs18b20Convert(void)
 {
 	if (InitializationDs18b20() != 0)
 	{
@@ -304,7 +320,15 @@ int StartDs18b20Convert(void)
 	return 0;	
 }
 
-int ReadDs18b20Ram(unsigned char ram[])
+/**********************************************************************************
+  * @brief       : 	读取DS18B20中ram数据
+  * @param[in]   : 	无
+  * @param[out]  : 	ram		用于存放读取的ram的数据
+  * @return      : 	0	读取成功
+  					-1	读取失败
+  * @others      : 	无
+***********************************************************************************/
+static int ReadDs18b20Ram(unsigned char ram[])
 {
 	int i;
 	
@@ -326,7 +350,15 @@ int ReadDs18b20Ram(unsigned char ram[])
 }
 
 
-int ReadDs18b20Temperature(double *temp)
+/**********************************************************************************
+  * @brief       : 	读取DS18B20中的温度数据
+  * @param[in]   : 	无
+  * @param[out]  : 	temp	用于存放读取的温度数据
+  * @return      : 	0	读取成功
+  					err	读取失败
+  * @others      : 	无
+***********************************************************************************/
+static int ReadDs18b20Temperature(double *temp)
 {
 	int err;
 	unsigned char ram[9];
@@ -374,11 +406,25 @@ int ReadDs18b20Temperature(double *temp)
 	return 0;
 }
 
-void InitDs18b20State(void)
+/**********************************************************************************
+  * @brief       : 	初始化DS18B20状态
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void InitDs18b20State(void)
 {
 	ReleaseDs18b20Data();
 }
 
+/**********************************************************************************
+  * @brief       : 	测试DS18B20温度传感器
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void TestDs18b20(void)
 {
 	double temp = 0;

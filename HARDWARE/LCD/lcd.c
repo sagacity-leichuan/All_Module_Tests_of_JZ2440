@@ -1,3 +1,10 @@
+/**********************************************************************************
+  * @brief      : 	JZ2440v2开发板LCD代码源文件
+  * @version    : 	V0.0
+  * @note       : 	无
+  * @history    : 	无
+***********************************************************************************/
+
 #include "lcd.h"
 #include "lcd_controller.h"
 #include "string_utils.h"
@@ -6,14 +13,19 @@
 #include "geometry.h"
 #include "font.h"
 
-
-
-
 #define LCD_NUM 10
 
-static PSLcdParams g_psArrayLcd[LCD_NUM];
-static PSLcdParams g_psLcdSelected;
+static PSLcdParams g_psArrayLcd[LCD_NUM];   //LCD数组
+static PSLcdParams g_psLcdSelected;			//当前选择的LCD
 
+/**********************************************************************************
+  * @brief       : 	注册LCD
+  * @param[in]   : 	plcd	LCD参数
+  * @param[out]  : 	无
+  * @return      : 	i	注册成功，i表示lcd在lcd数组中的索引号
+  					-1	注册失败
+  * @others      : 	无
+***********************************************************************************/
 int RegisterLcd(PSLcdParams plcd)
 {
 	int i;
@@ -28,7 +40,15 @@ int RegisterLcd(PSLcdParams plcd)
 	return -1;		
 }
 
-int SelectLcd(char *name)
+/**********************************************************************************
+  * @brief       : 	根据名字选择LCD
+  * @param[in]   : 	name	LCD名字
+  * @param[out]  : 	无
+  * @return      : 	i	选择成功，i表示lcd在lcd数组中的索引号
+  					-1	选择失败
+  * @others      : 	无
+***********************************************************************************/
+static int SelectLcd(char *name)
 {
 	int i;
 	for (i = 0; i < LCD_NUM; i++)
@@ -42,6 +62,16 @@ int SelectLcd(char *name)
 	return -1;		
 }
 
+/**********************************************************************************
+  * @brief       : 	获取LCD相关参数
+  * @param[in]   : 	无
+  * @param[out]  : 	fb_base	lcd的显存基地址
+  					xres	lcd的x方向最大值
+  					yres	lcd的y方向最大值
+  					bpp		lcd的bpp
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void GetLcdParams(unsigned int *fb_base, int *xres, int *yres, int *bpp)
 {
 	*fb_base = g_psLcdSelected->nFbBase;
@@ -50,16 +80,37 @@ void GetLcdParams(unsigned int *fb_base, int *xres, int *yres, int *bpp)
 	*bpp = g_psLcdSelected->iBpp;
 }
 
+/**********************************************************************************
+  * @brief       : 	使能LCD
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void EnableLcd(void)
 {
 	EnableLcdController();
 }
 
+/**********************************************************************************
+  * @brief       : 	关闭LCD
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void DisableLcd(void)
 {
 	DisableLcdController();
 }
 
+/**********************************************************************************
+  * @brief       : 	初始化LCD
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 int InitLcd(void)
 {
 	/* 注册LCD */
@@ -80,7 +131,13 @@ int InitLcd(void)
 	return 0;
 }
 
-
+/**********************************************************************************
+  * @brief       : 	LCD测试函数
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void TestLCD(void)
 {
 	unsigned int uiFbBase;
@@ -224,6 +281,4 @@ void TestLCD(void)
 
 	MainPage();
 }
-
-
 

@@ -1,4 +1,10 @@
- 
+/****************************************************************************************************
+  * @brief      : 	JZ2440v2开发板串口打印調試代码源文件
+  * @version    : 	V0.0
+  * @note       : 	无
+  * @history    : 	无
+*****************************************************************************************************/ 
+
 #include  "my_printf.h"
 
 //==================================================================================================
@@ -6,7 +12,6 @@ typedef char *  va_list;
 #define _INTSIZEOF(n)   ( (sizeof(n) + sizeof(int) - 1) & ~(sizeof(int) - 1) )
 
 #define va_start(ap,v)  ( ap = (va_list)&v + _INTSIZEOF(v) )
-//#define va_arg(ap,t)    ( *(t *)((ap += _INTSIZEOF(t)) - _INTSIZEOF(t)) )
 #define va_arg(ap,t)    ( *(t *)( ap=ap + _INTSIZEOF(t), ap- _INTSIZEOF(t)) )
 #define va_end(ap)      ( ap = (va_list)0 )
 
@@ -14,12 +19,26 @@ typedef char *  va_list;
 unsigned char hex_tab[]={'0','1','2','3','4','5','6','7',\
 		                 '8','9','a','b','c','d','e','f'};
 
+ /**********************************************************************************
+   * @brief 	  :  向串口輸出一個字符
+   * @param[in]   :  c	字符的编码
+   * @param[out]  :  无
+   * @return	  :  0	无实际意义
+   * @others	  :  无
+ ***********************************************************************************/
 static int outc(int c) 
 {
 	__out_putchar(c);
 	return 0;
 }
 
+/**********************************************************************************
+  * @brief		 :	向串口輸出一個字符串
+  * @param[in]	 :	s  字符串首地址
+  * @param[out]  :	无
+  * @return 	 :	0  无实际意义
+  * @others 	 :	无
+***********************************************************************************/
 static int outs (const char *s)
 {
 	while (*s != '\0')	
@@ -27,6 +46,16 @@ static int outs (const char *s)
 	return 0;
 }
 
+/**********************************************************************************
+  * @brief		 :	向串口輸出一個数字
+  * @param[in]	 :	n  带输出的数字
+  					base	输出的进制
+  					lead	空位的字符
+  					maxwidth	输出的宽度
+  * @param[out]  :	无
+  * @return 	 :	0  无实际意义
+  * @others 	 :	无
+***********************************************************************************/
 static int out_num(long n, int base,char lead,int maxwidth) 
 {
 	unsigned long m=0;
@@ -48,10 +77,11 @@ static int out_num(long n, int base,char lead,int maxwidth)
 		count++;
 	}while ((m /= base) != 0);
 	
-	if( maxwidth && count < maxwidth){
+	if( maxwidth && count < maxwidth)
+	{
 		for (i=maxwidth - count; i; i--)	
 			*--s = lead;
-}
+	}
 
 	if (n < 0)
 		*--s = '-';
@@ -61,6 +91,14 @@ static int out_num(long n, int base,char lead,int maxwidth)
    
 
 /*reference :   int vprintf(const char *format, va_list ap); */
+/**********************************************************************************
+  * @brief		 :	向串口輸出标准化字符串
+  * @param[in]	 :	fmt  	带格式的字符串
+  					ap	参数列表
+  * @param[out]  :	无
+  * @return 	 :	0  无实际意义
+  * @others 	 :	无
+***********************************************************************************/
 static int my_vprintf(const char *fmt, va_list ap) 
 {
 	char lead=' ';
@@ -111,6 +149,15 @@ static int my_vprintf(const char *fmt, va_list ap)
 
 
 //reference :  int printf(const char *format, ...); 
+/**********************************************************************************
+  * @brief		 :	向串口輸出标准化字符串（多参数函数）
+  * @param[in]	 :	fmt  	带格式的字符串
+  					......	多参数
+  * @param[out]  :	无
+  * @return 	 :	0  无实际意义
+  * @others 	 :	无
+***********************************************************************************/
+
 int printf(const char *fmt, ...) 
 {
 	va_list ap;
@@ -121,6 +168,13 @@ int printf(const char *fmt, ...)
 	return 0;
 }
 
+/**********************************************************************************
+  * @brief		 :	向串口輸出一个十六进制的数
+  * @param[in]	 :	val	待输出的数据
+  * @param[out]  :	无
+  * @return 	 :	无
+  * @others 	 :	无
+***********************************************************************************/
 void printHex(unsigned int val)
 {
 	int i;
@@ -143,17 +197,4 @@ void printHex(unsigned int val)
 			PutChar(arr[i] - 0xA + 'A');
 	}
 }
-
-void print1(void)
-{
-	Puts("abc\n\r");
-}
-
-void print2(void)
-{
-	Puts("123\n\r");
-}
-
-
-
 

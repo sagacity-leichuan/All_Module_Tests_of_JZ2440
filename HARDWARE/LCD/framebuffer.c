@@ -1,20 +1,36 @@
+/**************************************************************************************************************************
+  * @brief      : 	JZ2440v2开发板LCD的显存（显示缓冲区）代码源文件
+  * @version    : 	V0.0
+  * @note       : 	无
+  * @history    : 	无
+***************************************************************************************************************************/
 
 #include "lcd.h"
 #include "framebuffer.h"
-
-/* 实现画点 */
 
 /* 获得LCD参数 */
 static unsigned int sg_uiFbBase;
 static int sg_iXres, sg_iYres, sg_Bpp;
 
-
+/**********************************************************************************
+  * @brief       : 	获取lcd参数用以framebuffer使用
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void GetLcdParamsforFb(void)
 {
 	GetLcdParams(&sg_uiFbBase, &sg_iXres, &sg_iYres, &sg_Bpp);
 }
 
-/* rgb: 0x00RRGGBB */
+/**********************************************************************************
+  * @brief       : 	将32位的bpp转换为16位的bpp
+  * @param[in]   : 	rgb	32位的bpp数据
+  * @param[out]  : 	无
+  * @return      : 	16位的bpp数据
+  * @others      : 	无
+***********************************************************************************/
 unsigned short Convert32BppTo16Bpp(unsigned int rgb)
 {
 	int r = (rgb >> 16)& 0xff;
@@ -29,10 +45,15 @@ unsigned short Convert32BppTo16Bpp(unsigned int rgb)
 	return ((r<<11) | (g<<5) | (b));
 }
 
-
-/* color : 32bit, 0x00RRGGBB
- *
- */
+/**********************************************************************************
+  * @brief       : 	将显存中指定的像素描绘为指定的颜色
+  * @param[in]   : 	x	待描绘的像素x坐标
+  					y	待描绘的像素y坐标
+  					color	待描绘的像素的颜色
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void PutFbPixel(int x, int y, unsigned int color)
 {
 	unsigned char  *pchBpp8;  /* 8bpp */
@@ -58,6 +79,13 @@ void PutFbPixel(int x, int y, unsigned int color)
 	}
 }
 
+/**********************************************************************************
+  * @brief       : 	将显存所有像素设置为统一的特定颜色
+  * @param[in]   : 	color	待设置的颜色
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void ClearScreen(unsigned int color)
 {
 	int x, y;

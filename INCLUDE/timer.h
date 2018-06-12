@@ -11,6 +11,7 @@ typedef struct STimerDesc {
 }STimerDesc, *PSTimerDesc;
 
 void InitTimer(void);
+void Delay(volatile int d);
 int RegisterTimer(char *name, TimerFunc fp);
 int UnregisterTimer(char *name);
 int StopTimer(void);

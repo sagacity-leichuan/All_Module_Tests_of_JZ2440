@@ -1,3 +1,10 @@
+/*******************************************************************************************
+  * @brief      : 	JZ2440v2开发板红外接收传感器nec协议实现代码源文件
+  * @version    : 	V0.0
+  * @note       : 	无
+  * @history    : 	无
+********************************************************************************************/
+
 #include "irda_rawdata.h"
 #include "circle_buffer.h"
 #include "timer.h"
@@ -7,7 +14,6 @@
 #include "framebuffer.h"
 #include "font.h"
 #include "string_utils.h"
-
 
 /*
  * 从环型缓冲区中获得脉冲数据,
@@ -25,6 +31,15 @@
 #define DURATION_DATA0_HIGH  (1*DURATION_BASE)
 #define DURATION_END_LOW     (1*DURATION_BASE)
 
+/**************************************************************************************************
+  * @brief       : 	把接收的红外原始数据根据相应的NEC解码规则得到1或0
+  * @param[in]   : 	duration	接收的红外原始的边缘数据
+  					us		nec协议中的不同的时序值
+  * @param[out]  : 	无
+  * @return      : 	1	表示得到一位1数据
+  					0	标识得到一位0数据
+  * @others      : 	无
+***************************************************************************************************/
 static int DurationInMargin(int duration, int us)
 {
 	if ((duration > (us - DURATION_DELTA)) && (duration < us + DURATION_DELTA))
@@ -33,10 +48,17 @@ static int DurationInMargin(int duration, int us)
 		return 0;
 }
 
-/*
- * 返回值: 0-得到数据, 1-得到重复码, -1 : 失败
- */
-int ReadIrdaNec(int *address, int *data)
+/**************************************************************************************************
+  * @brief		 :	得到nec协议的红外数据
+  * @param[in]	 :	无
+  * @param[out]  :	address	存放读取的红外地址
+  					data	存放读取的红外码值
+  * @return 	 :	1	得到重复码
+					0	得到数据
+					-1	失败
+  * @others 	 :	无
+***************************************************************************************************/
+static int ReadIrdaNec(int *address, int *data)
 {
 	SIrdaRawdataEvent event;	
 	int i;
@@ -165,6 +187,13 @@ int ReadIrdaNec(int *address, int *data)
 	}
 }
 
+/**************************************************************************************************
+  * @brief		 :	nec协议的红外接收测试
+  * @param[in]	 :	无
+  * @param[out]  :	无
+  * @return 	 :	无
+  * @others 	 :	无
+***************************************************************************************************/
 void TestIrdaNec(void)
 {
 	int address = 0;
@@ -185,7 +214,6 @@ void TestIrdaNec(void)
 	mDelay(5000);
 	PrintFbString8x16(40, 120, "Please ensure that the corresponding module is properly connected.", 0xffffff, 1);
 
-	
 	DisplayReturnButton();
 
 	while (1)

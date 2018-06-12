@@ -11,6 +11,12 @@ STimerDesc timer_array[TIMER_NUM];
 
 static unsigned long long g_system_time_10ms_cnt = 0;
 
+void Delay(volatile int d)
+{
+	while (d--);
+}
+
+
 int RegisterTimer(char *name, TimerFunc fp)
 {
 	int i;
