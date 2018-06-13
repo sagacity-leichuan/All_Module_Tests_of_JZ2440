@@ -1,3 +1,10 @@
+/****************************************************************************************************
+  * @brief      : 	JZ2440v2开发板触摸屏代码源文件
+  * @version    : 	V0.0
+  * @note       : 	无
+  * @history    : 	无
+*****************************************************************************************************/
+
 #include "s3c2440_soc.h"
 #include "touchscreen.h"
 #include "interrupt.h"
@@ -6,6 +13,7 @@
 #include "tslib.h"
 #include "framebuffer.h"
 #include "font.h"
+#include "lcd.h"
 #include "function.h"
 #include "geometry.h"
 
@@ -50,26 +58,61 @@ static volatile int gs_viTsDataValid = 0;
 static int s_TestXArray[16];
 static int s_TestYArray[16];
 
+/**********************************************************************************
+  * @brief       : 	进入等待触摸笔点击模式
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void EnterWaitPenDownMode(void)
 {
 	ADCTSC = WAIT_PEN_DOWN | PULLUP_ENABLE | YM_ENABLE | YP_DISABLE | XP_DISABLE | XM_DISABLE | WAIT_INT_MODE;
 }
 
+/**********************************************************************************
+  * @brief       : 	进入等待触摸笔离开模式
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void EnterWaitPenUpMode(void)
 {
 	ADCTSC = WAIT_PEN_UP | PULLUP_ENABLE | YM_ENABLE | YP_DISABLE | XP_DISABLE | XM_DISABLE | WAIT_INT_MODE;
 }
 
+/**********************************************************************************
+  * @brief       : 	进入自动测量模式
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void EnterAutoMeasureMode(void)
 {
 	ADCTSC = AUTO_PST | NO_OPR_MODE;
 }
 
+/**********************************************************************************
+  * @brief       : 	是否进入自动测量模式
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static int isInAutoMode(void)
 {
 	return ADCTSC & AUTO_PST;
 }
 
+/**********************************************************************************
+  * @brief       : 	触摸屏中断处理
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void IsrTc(void)
 {
 	if (ADCDAT0 & (1<<15))
@@ -87,21 +130,51 @@ void IsrTc(void)
 	}
 }
 
+/**********************************************************************************
+  * @brief       : 	使能触摸屏定时器
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void EnableTsTimer(void)
 {
 	gs_viTsTimerEnable = 1;
 }
 
+/**********************************************************************************
+  * @brief       : 	关闭触摸屏定时器
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void DisableTsTimer(void)
 {
 	gs_viTsTimerEnable = 0;
 }
 
+/**********************************************************************************
+  * @brief       : 	获取触摸屏定时器状态
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static int GetStatusOfTsTimer(void)
 {
 	return gs_viTsTimerEnable;
 }
 
+/**********************************************************************************
+  * @brief       : 	上报触摸笔点击的信息
+  * @param[in]   : 	x	触摸笔点击的x坐标
+  					y	触摸笔点击的y坐标
+  					pressure	触摸笔压力状态
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void ReportTsXY(int x, int y, int pressure)
 {
 	if (gs_viTsDataValid == 0)
@@ -115,6 +188,15 @@ void ReportTsXY(int x, int y, int pressure)
 	
 }
 
+/**********************************************************************************
+  * @brief       : 	读取触摸笔点击的信息
+  * @param[in]   : 	无
+  * @param[out]  : 	px	存放触摸笔点击的x坐标
+  					py	存放触摸笔点击的y坐标
+  					ppressure	存放触摸笔压力状态
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void ReadTsRaw(int *px, int *py, int *ppressure)
 {
 	if(gs_viTsDataValid == 0)
@@ -134,8 +216,13 @@ void ReadTsRaw(int *px, int *py, int *ppressure)
 
 }
 
-/* 每10ms该函数被调用一次 
- */
+/**********************************************************************************
+  * @brief		 :	触摸屏定时器中断处理函数
+  * @param[in]	 :	无
+  * @param[out]  :	无
+  * @return 	 :	无
+  * @others 	 :	每10ms该函数被调用一次
+***********************************************************************************/
 void TouchscreenTimerIrq(void)
 {
 	
@@ -172,6 +259,13 @@ void TouchscreenTimerIrq(void)
 	}
 }
 
+/**********************************************************************************
+  * @brief       : 	ADC中断处理
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void IsrAdc(void)
 {
 	int x = ADCDAT0;
@@ -246,9 +340,15 @@ void IsrAdc(void)
 
 }
 
+/**********************************************************************************
+  * @brief       : 	ADC与触摸屏中断处理
+  * @param[in]   : 	irq	中断号
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void AdcTsIntHandle(int irq)
 {
-	//Delay(100);
 	if (SUBSRCPND & (1<<TC_INT_BIT))  /* 如果是触摸屏中断 */
 		IsrTc();
 
@@ -258,6 +358,13 @@ void AdcTsIntHandle(int irq)
 	SUBSRCPND = (1<<TC_INT_BIT) | (1<<ADC_INT_BIT);
 }
 
+/**********************************************************************************
+  * @brief       : 	初始化ADC与触摸屏中断处理
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void InitAdcTsInt(void)
 {
 	SUBSRCPND = (1<<TC_INT_BIT) | (1<<ADC_INT_BIT);
@@ -269,7 +376,13 @@ void InitAdcTsInt(void)
 	INTSUBMSK &= ~((1<<ADC_INT_BIT) | (1<<TC_INT_BIT));
 }
 
-
+/**********************************************************************************
+  * @brief       : 	初始化ADC与触摸屏中断寄存器
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void InitAdcTsReg(void)
 {
 	/* [15] : ECFLG,  1 = End of A/D conversion
@@ -287,7 +400,13 @@ void InitAdcTsReg(void)
 	ADCDLY = 60000;	
 }
 
-
+/**********************************************************************************
+  * @brief       : 	初始化触摸屏
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void InitTouchScreen(void)
 {
 	/* 设置触摸屏接口:寄存器 */
@@ -303,31 +422,13 @@ void InitTouchScreen(void)
 	EnterWaitPenDownMode();
 }
 
-void print_test_array(void)
-{
-	int i;
-
-	printf("test array x : ");
-	for (i = 0; i < 16; i++)
-		printf("%08d ", s_TestXArray[i]);
-	printf("\n\r");
-
-	printf("test array y : ");
-	for (i = 0; i < 16; i++)
-		printf("%08d ", s_TestYArray[i]);
-	printf("\n\r");
-}
-
-//void ts_read_raw_test(int *px, int *py, int *ppressure)
-//{
-//	while (g_ts_data_valid == 0);
-//	*px = g_ts_x;
-//	*py = g_ts_y;
-//	*ppressure = g_ts_pressure;
-//	print_test_array();
-//	g_ts_data_valid = 0;
-//}
-
+/**********************************************************************************
+  * @brief       : 	触摸屏测试函数
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void TestTouchScreen(void)
 {
 	unsigned int iFbBase;
@@ -368,5 +469,4 @@ void TestTouchScreen(void)
 		
 	}
 }
-
 

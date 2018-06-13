@@ -1,3 +1,10 @@
+/****************************************************************************************************
+  * @brief      : 	JZ2440v2开发板nor flash代码源文件
+  * @version    : 	V0.0
+  * @note       : 	无
+  * @history    : 	无
+*****************************************************************************************************/
+
 #include "my_printf.h"
 #include "string_utils.h"
 #include "nor_flash.h"
@@ -5,39 +12,73 @@
 #include "tslib.h"
 #include "framebuffer.h"
 #include "font.h"
-#include "nand_flash.h"
+#include "timer.h"
 
 #define NOR_FLASH_BASE  0  /* jz2440, nor-->cs0, base addr = 0 */
 
-
-/* 比如:   55H 98 
- * 本意是: 往(0 + (0x55)<<1)写入0x98
- */
-void NorWriteWord(unsigned int base, unsigned int offset, unsigned int val)
+/**********************************************************************************
+  * @brief       : 	向nor flash写入一个字
+  * @param[in]   : 	base	nor flash基址
+  					offset	地址偏移量
+  					val		待写入的字
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	比如:   55H 98 
+					本意是: 往(0 + (0x55)<<1)写入0x98
+***********************************************************************************/
+static void NorWriteWord(unsigned int base, unsigned int offset, unsigned int val)
 {
 	volatile unsigned short *vpnTemp = (volatile unsigned short *)(base + (offset << 1));
 	*vpnTemp = val;
 }
 
-/* offset是基于NOR的角度看到 */
-void NorCmd(unsigned int offset, unsigned int cmd)
+/**********************************************************************************
+  * @brief       : 	向nor flash写入一个命令
+  * @param[in]   : 	offset	地址偏移量
+  					cmd		待写入的命令
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	offset是基于NOR的角度看到
+***********************************************************************************/
+static void NorCmd(unsigned int offset, unsigned int cmd)
 {
 	NorWriteWord(NOR_FLASH_BASE, offset, cmd);
 }
 
-unsigned int NorReadWord(unsigned int base, unsigned int offset)
+/**********************************************************************************
+  * @brief       : 	向nor flash读取一个字的数据
+  * @param[in]   : 	base	nor flash基址
+  					offset	地址偏移量
+  * @param[out]  : 	无
+  * @return      : 	返回一个字的数据
+  * @others      : 	无
+***********************************************************************************/
+static unsigned int NorReadWord(unsigned int base, unsigned int offset)
 {
 	volatile unsigned short *vpnTemp = (volatile unsigned short *)(base + (offset << 1));
 	return *vpnTemp;
 }
 
-unsigned int NorDat(unsigned int offset)
+/**********************************************************************************
+  * @brief       : 	向nor flash读取数据
+  * @param[in]   : 	offset	地址偏移量
+  * @param[out]  : 	无
+  * @return      : 	返回的数据
+  * @others      : 	无
+***********************************************************************************/
+static unsigned int NorDat(unsigned int offset)
 {
 	return NorReadWord(NOR_FLASH_BASE, offset);
 }
 
-
-void NorWaitReady(unsigned int addr)
+/**********************************************************************************
+  * @brief       : 	等待nor flash就绪
+  * @param[in]   : 	addr	待操作的地址
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void NorWaitReady(unsigned int addr)
 {
 	unsigned int iVal;
 	unsigned int iPre;
@@ -51,11 +92,15 @@ void NorWaitReady(unsigned int addr)
 	}
 }
 
-
-/* 进入NOR FLASH的CFI模式
- * 读取各类信息
- */
-void DoScanNorFlash(void)
+/**********************************************************************************
+  * @brief		 :	测试nor flash用扫描函数
+  * @param[in]	 :	无
+  * @param[out]  :	无
+  * @return 	 :	无
+  * @others 	 :	进入NOR FLASH的CFI模式
+    				读取各类信息
+***********************************************************************************/
+static void DoScanNorFlash(void)
 {
 	char szStr[4];
 	unsigned int uiSize;
@@ -128,7 +173,14 @@ void DoScanNorFlash(void)
 	NorCmd(0, 0xf0);
 }
 
-void DoEraseNorFlash(void)
+/**********************************************************************************
+  * @brief		 :	测试nor flash用擦除函数
+  * @param[in]	 :	无
+  * @param[out]  :	无
+  * @return 	 :	无
+  * @others 	 :	无
+***********************************************************************************/
+static void DoEraseNorFlash(void)
 {
 	unsigned int iAddr;
 	
@@ -147,7 +199,14 @@ void DoEraseNorFlash(void)
 	NorWaitReady(iAddr);
 }
 
-void DoWriteNorFlash(void)
+/**********************************************************************************
+  * @brief		 :	测试nor flash用写入函数
+  * @param[in]	 :	无
+  * @param[out]  :	无
+  * @return 	 :	无
+  * @others 	 :	无
+***********************************************************************************/
+static void DoWriteNorFlash(void)
 {
 	unsigned int iAddr;
 	unsigned char szStr[100];
@@ -195,7 +254,14 @@ void DoWriteNorFlash(void)
 	NorWaitReady(iAddr);
 }
 
-void DoReadNorFlash(void)
+/**********************************************************************************
+  * @brief		 :	测试nor flash用读取函数
+  * @param[in]	 :	无
+  * @param[out]  :	无
+  * @return 	 :	无
+  * @others 	 :	无
+***********************************************************************************/
+static void DoReadNorFlash(void)
 {
 	unsigned int iAddr;
 	volatile unsigned char *vpchTemp;
@@ -236,7 +302,13 @@ void DoReadNorFlash(void)
 	}
 }
 
-
+/**********************************************************************************
+  * @brief		 :	测试nor flash功能函数
+  * @param[in]	 :	无
+  * @param[out]  :	无
+  * @return 	 :	无
+  * @others 	 :	无
+***********************************************************************************/
 void TestNorFlash(void)
 {
 	char c;
@@ -249,7 +321,20 @@ void TestNorFlash(void)
 
 	/* 显示文字提示 */
 	PrintFbString16x32(176, 5, "NOR TEST", 0xe3170d, 0);
+
+	if(!isBootFromNorFlash())
+	{
+		PrintFbString8x16(40, 120, "This start is nand flash start, can not test nor flash! ! !", 0x4169e1, 1);
+		Delay(3500000);
+		PrintFbString8x16(40, 120, "This start is nand flash start, can not test nor flash! ! !", 0xffffff, 1);
+
+		MainPage();
+
+		return;
+	}
+	
 	DisplayReturnButton();
+
 
 	/* 打印厂家ID、设备ID */
 	NorCmd(0x555, 0xaa);    /* 解锁 */
@@ -390,6 +475,4 @@ void TestNorFlash(void)
 	}
 
 }
-
-
 

@@ -9,6 +9,7 @@
 #include "lcd_controller.h"
 #include "string_utils.h"
 #include "lcd_4.3.h"
+#include "timer.h"
 #include "function.h"
 #include "geometry.h"
 #include "font.h"

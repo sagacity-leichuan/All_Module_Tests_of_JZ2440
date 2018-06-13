@@ -1,3 +1,10 @@
+/**********************************************************************************
+  * @brief      : 	JZ2440v2开发板LCD控制器代码源文件
+  * @version    : 	V0.0
+  * @note       : 	无
+  * @history    : 	无
+***********************************************************************************/
+
 #include "s3c2440_lcd_controller.h"
 #include "lcd.h"
 #include "lcd_controller.h"
@@ -6,7 +13,14 @@
 
 #define HCLK 100
 
-void InitJz2440LcdPin_(void)
+/**********************************************************************************
+  * @brief       : 	初始化S3C2440 lcd控制器GPIO管脚
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+void InitJz2440LcdPin(void)
 {
 	/* 初始化引脚 : 背光引脚 */
 	GPBCON &= ~0x3;
@@ -20,14 +34,19 @@ void InitJz2440LcdPin_(void)
 	GPGCON |= (3<<8);
 }
 
-
-/* 根据传入的LCD参数设置LCD控制器 */
-void InitS3c2440LcdController_(PSLcdParams plcdparams)
+/**********************************************************************************
+  * @brief       : 	初始化S3C2440 lcd控制器
+  * @param[in]   : 	plcdparams	lcd参数结构体指针
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+void InitS3c2440LcdController(PSLcdParams plcdparams)
 {
 	int iPixelPlace;
 	unsigned int nAddr;
 
-	InitJz2440LcdPin_();
+	InitJz2440LcdPin();
 	
 	/* [17:8]: clkval, vclk = HCLK / [(CLKVAL+1) x 2]
 	 *                   9   = 100M /[(CLKVAL+1) x 2], clkval = 4.5 = 5
@@ -112,7 +131,14 @@ void InitS3c2440LcdController_(PSLcdParams plcdparams)
 	LCDSADDR2 = nAddr;//	
 }
 
-void EnableS3c2440LcdController_(void)
+/**********************************************************************************
+  * @brief       : 	使能S3C2440 lcd控制器
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+void EnableS3c2440LcdController(void)
 {
 	/* 背光引脚 : GPB0 */
 	GPBDAT |= (1<<0);
@@ -124,7 +150,14 @@ void EnableS3c2440LcdController_(void)
 	LCDCON1 |= (1<<0);
 }
 
-void DisableS3c2440LcdController_(void)
+/**********************************************************************************
+  * @brief       : 	取消使能S3C2440 lcd控制器
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+void DisableS3c2440LcdController(void)
 {
 	/* 背光引脚 : GPB0 */
 	GPBDAT &= ~(1<<0);
@@ -136,7 +169,13 @@ void DisableS3c2440LcdController_(void)
 	LCDCON1 &= ~(1<<0);
 }
 
-/* 设置调色板之前, 先关闭lcd_controller */
+/**********************************************************************************
+  * @brief       : 	初始化S3C2440 lcd控制器调色板
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	设置调色板之前, 先关闭lcd_controller
+***********************************************************************************/
 void InitS3c2440LcdControllerPalette(void)
 {
 	volatile unsigned int *vnpPaletteBase =  (volatile unsigned int *)0x4D000400;
@@ -160,14 +199,19 @@ void InitS3c2440LcdControllerPalette(void)
 
 struct SLcdController g_sS3c2440LcdController = {
 	.pchName    = "s3c2440",
-	.Init    = InitS3c2440LcdController_,
-	.Enable  = EnableS3c2440LcdController_,
-	.Disable = DisableS3c2440LcdController_,
+	.Init    = InitS3c2440LcdController,
+	.Enable  = EnableS3c2440LcdController,
+	.Disable = DisableS3c2440LcdController,
 	.InitPalette = InitS3c2440LcdControllerPalette,
 };
 
-
-
+/**********************************************************************************
+  * @brief       : 	注册S3C2440 lcd控制器
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void AddS3c2440LcdContoller(void)
 {
 	RegisterLcdController(&g_sS3c2440LcdController);

@@ -1,3 +1,10 @@
+/****************************************************************************************************
+  * @brief      : 	JZ2440v2开发板oled显示屏代码源文件
+  * @version    : 	V0.0
+  * @note       : 	无
+  * @history    : 	无
+*****************************************************************************************************/
+
 #include "oledfont.h"
 #include "spi_gpio_simulate.h"
 #include "spi_s3c2440_controller.h"
@@ -5,7 +12,13 @@
 #include "s3c2440_soc.h"
 #include "oled.h"
 
-
+/**********************************************************************************
+  * @brief       : 	设置oled的DC状态
+  * @param[in]   : 	val	待设置的值
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void SetOLEDDC(char val)
 {
     if (val)
@@ -14,6 +27,13 @@ static void SetOLEDDC(char val)
         GPGDAT &= ~(1<<4);
 }
 
+/**********************************************************************************
+  * @brief       : 	设置oled的CS状态
+  * @param[in]   : 	val	待设置的值
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void SetOLEDCS(char val)
 {
     if (val)
@@ -22,6 +42,13 @@ static void SetOLEDCS(char val)
         GPFDAT &= ~(1<<1);
 }
 
+/**********************************************************************************
+  * @brief       : 	向oled写入DC命令
+  * @param[in]   : 	cmd		待写入的命令
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void WriteOLEDCmd(unsigned char cmd)
 {
 
@@ -29,13 +56,9 @@ static void WriteOLEDCmd(unsigned char cmd)
     SetOLEDDC(0); /* command */
     SetOLEDCS(0); /* select OLED */
 #ifdef SPIGPIO
-
     SendByteSPIGPIO(cmd);
-
 #else
-
 	SendByteSPIS3c2440Controller(cmd);
-
 #endif
 
     SetOLEDCS(1); /* de-select OLED */
@@ -43,32 +66,49 @@ static void WriteOLEDCmd(unsigned char cmd)
     
 }
 
+/**********************************************************************************
+  * @brief       : 	向oled写入数据
+  * @param[in]   : 	dat	待写入的数据
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void WriteOLEDDat(unsigned char dat)
 {
     SetOLEDDC(1); /* data */
     SetOLEDCS(0); /* select OLED */
 
 #ifdef SPIGPIO
-	
 	SendByteSPIGPIO(dat);
-	
 #else
-	
 	SendByteSPIS3c2440Controller(dat);
-	
 #endif
-
 
     SetOLEDCS(1); /* de-select OLED */
     SetOLEDDC(1); /*  */
 }
 
+/**********************************************************************************
+  * @brief       : 	设置oled页地址模式
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void SetOLEDPageAddrMode(void)
 {
     WriteOLEDCmd(0x20);
     WriteOLEDCmd(0x02);
 }
 
+/**********************************************************************************
+  * @brief       : 	设置oled指针位置
+  * @param[in]   : 	page	指针所在的页
+  					col		指针所在的列
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void SetOLEDPos(int page, int col)
 {
     WriteOLEDCmd(0xB0 + page); /* page address */
@@ -77,7 +117,13 @@ static void SetOLEDPos(int page, int col)
     WriteOLEDCmd(0x10 + (col >> 4));   /* Lower Higher Start Address */
 }
 
-
+/**********************************************************************************
+  * @brief       : 	对oled清屏操作
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void ClearOLED(void)
 {
     int page, i;
@@ -89,6 +135,13 @@ static void ClearOLED(void)
     }
 }
 
+/**********************************************************************************
+  * @brief       : 	初始化OLED
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void InitOLED(void)
 {
     /* 向OLED发命令以初始化 */
@@ -124,11 +177,17 @@ void InitOLED(void)
     WriteOLEDCmd(0xAF); /*display ON*/    
 }
 
-
-/* page: 0-7
- * col : 0-127
- * 字符: 8x16象素
- */
+/**********************************************************************************
+  * @brief		 :	在OLED显示屏上显示特定字符
+  * @param[in]	 :	page	字符显示的页
+  					col		字符显示的列
+  					c		待显示的字符
+  * @param[out]  :	无
+  * @return 	 :	无
+  * @others 	 :	page: 0-7
+					col : 0-127
+					字符: 8x16象素
+***********************************************************************************/
 void PutOLEDChar(int page, int col, char c)
 {
     int i = 0;
@@ -148,12 +207,18 @@ void PutOLEDChar(int page, int col, char c)
 
 }
 
-
-/* page: 0-7
- * col : 0-127
- * 字符: 8x16象素
- */
-void PrintOLED(int page, int col, char *str)
+ /**********************************************************************************
+  * @brief		 :	在OLED显示屏上显示特定字符串
+  * @param[in]	 :	page	字符串显示的页
+  					col		字符串显示的列
+  					str		待显示的字符串首地址
+  * @param[out]  :	无
+  * @return 	 :	无
+  * @others 	 :	page: 0-7
+					col : 0-127
+					字符: 8x16象素
+***********************************************************************************/
+void PrintOLEDString(int page, int col, char *str)
 {
     int i = 0;
     while (str[i])

@@ -631,7 +631,7 @@ void TestSPI(void)
 	PrintFbString16x32(90, 5, "SPI-Flash/OLED TEST", 0xe3170d, 0);
 	
 	InitOLED();
-    PrintOLED(0,0,"leichuan, sagacity_lc@163.com");
+    PrintOLEDString(0,0,"leichuan, sagacity_lc@163.com");
 
     ReadSPIFlashID(&mid, &pid);
  	
@@ -733,5 +733,62 @@ void TestSPI(void)
 				break;
 		}
 	}
+}
+
+/**********************************************************************************
+  * @brief       : 	把整型数据转换成相应进制的字符串
+  * @param[in]   : 	c	待转换的整型数据
+  					radix	需要转换的进制，取值范围{10,16}
+  * @param[out]  : 	buf		用于存储转换的结果
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+void Convert(unsigned char buf[],unsigned int c, int radix)
+{
+	unsigned int iTemp;
+	unsigned char chBuf[33];
+	int i = 0;
+	int j;
+
+	if(c == 0)
+	{
+		buf[0] = '0';
+		buf[1] = '\0';
+		return;
+	}
+	
+	while(c != 0)  
+    {  
+    	if(radix == 16)
+		{
+	        iTemp=c%16;
+	        if(iTemp>=0 && iTemp<10)  
+	        {  
+	            chBuf[i]=iTemp +'0';  
+	            i++;  
+	        }  
+	        else  
+	        {  
+	            chBuf[i]=iTemp+'A'-10;       
+	            i++;  
+	        }	        	
+	        c = c/16;	        
+        }
+        else if(radix == 10)
+        {
+			iTemp=c%10;  
+	        if(iTemp>=0 && iTemp<10)  
+	        {  
+	            chBuf[i]=iTemp +'0';  
+	            i++;  
+	        }	        
+	        c = c/10;
+        }
+    }
+
+	for(j=0;j<i;j++)
+		buf[j]=chBuf[i-j-1];
+    
+    buf[i]='\0'; 
 }
 

@@ -1,3 +1,10 @@
+/****************************************************************************************************
+  * @brief      : 	JZ2440v2开发板光敏电阻（Photoresistor）代码源文件
+  * @version    : 	V0.0
+  * @note       : 	无
+  * @history    : 	无
+*****************************************************************************************************/
+
 #include "sensor.h"
 #include "timer.h"
 #include "my_printf.h"
@@ -7,8 +14,15 @@
 #include "string_utils.h"
 #include "nand_flash.h"
 
-extern int iPhotoresistorEnd;
+extern int iPhotoresistorEnd;    //是否结束光敏电阻测试标志，此变量定义在key.c中
 
+/**********************************************************************************
+  * @brief       : 	光敏电阻测试功能函数
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void TestPhotoresistor(void)
 {
 	int val, val0;
@@ -86,6 +100,4 @@ void TestPhotoresistor(void)
 	
 	}	
 }
-
-
 

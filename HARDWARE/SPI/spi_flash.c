@@ -1,12 +1,24 @@
+/****************************************************************************************************
+  * @brief      : 	JZ2440v2开发板SPI Flash代码源文件
+  * @version    : 	V0.0
+  * @note       : 	无
+  * @history    : 	无
+*****************************************************************************************************/
 #include "s3c2440_soc.h"
 #include "spi_gpio_simulate.h"
 #include "spi_s3c2440_controller.h"
-#include "function.h"
+#include "timer.h"
 #include "my_printf.h"
 #include "string_utils.h"
 
 
-
+/**********************************************************************************
+  * @brief       : 	设置SPI Flash的CS状态
+  * @param[in]   : 	val	待设置的值   		取值{0,1}
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void SetSPIFlashCS(char val)
 {
     if (val)
@@ -15,6 +27,13 @@ static void SetSPIFlashCS(char val)
         GPGDAT &= ~(1<<2);
 }
 
+/**********************************************************************************
+  * @brief       : 	向SPI Flash发送地址
+  * @param[in]   : 	addr	待发送的地址
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void SendSPIFlashAddr(unsigned int addr)
 {
 #ifdef SPIGPIO
@@ -30,9 +49,14 @@ static void SendSPIFlashAddr(unsigned int addr)
 #endif
 }
 
-/* 
- * 
- */
+/**********************************************************************************
+  * @brief       : 	读取SPI Flash的ID
+  * @param[in]   : 	无
+  * @param[out]  : 	pMID	存放获取的MID
+  					pDID	存放获取的DID
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void ReadSPIFlashID(int *pMID, int *pDID)
 {
 #ifdef SPIGPIO     //使用gpio模拟
@@ -60,6 +84,13 @@ void ReadSPIFlashID(int *pMID, int *pDID)
 #endif
 }
 
+/**********************************************************************************
+  * @brief       : 	SPI Flash写使能
+  * @param[in]   : 	enable	使能状态 取值{0,1}
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void SPIFlashWriteEnable(int enable)
 {
 #ifdef SPIGPIO
@@ -91,6 +122,13 @@ static void SPIFlashWriteEnable(int enable)
  #endif
 }
 
+/**********************************************************************************
+  * @brief       : 	读取SPI Flash状态寄存器1
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	val	状态寄存器1的值
+  * @others      : 	无
+***********************************************************************************/
 static unsigned char SPIFlashReadStatusReg1(void)
 {
 #ifdef SPIGPIO
@@ -110,6 +148,13 @@ static unsigned char SPIFlashReadStatusReg1(void)
 #endif
 }
 
+/**********************************************************************************
+  * @brief       : 	读取SPI Flash状态寄存器2
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	val	状态寄存器2的值
+  * @others      : 	无
+***********************************************************************************/
 static unsigned char SPIFlashReadStatusReg2(void)
 {
 #ifdef SPIGPIO
@@ -129,11 +174,26 @@ static unsigned char SPIFlashReadStatusReg2(void)
 #endif
 }
 
+/**********************************************************************************
+  * @brief       : 	当SPI Flash忙是进行等待
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void SPIFlashWaitWhenBusy(void)
 {
     while (SPIFlashReadStatusReg1() & 1);
 }
 
+/**********************************************************************************
+  * @brief       : 	写SPI Flash状态寄存器
+  * @param[in]   : 	reg1	待写入的状态寄存器1的值
+  					reg2	待写入的状态寄存器2的值
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void SPIFlashWriteStatusReg(unsigned char reg1, unsigned char reg2)
 {  
 
@@ -154,6 +214,13 @@ static void SPIFlashWriteStatusReg(unsigned char reg1, unsigned char reg2)
     SPIFlashWaitWhenBusy();
 }
 
+/**********************************************************************************
+  * @brief       : 	清除SPI Flash的寄存器保护
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void SPIFlashClearProtectForStatusReg(void)
 {
     unsigned char reg1, reg2;
@@ -167,7 +234,13 @@ static void SPIFlashClearProtectForStatusReg(void)
     SPIFlashWriteStatusReg(reg1, reg2);
 }
 
-
+/**********************************************************************************
+  * @brief       : 	清除SPI Flash的数据保护
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 static void SPIFlashClearProtectForData(void)
 {
     /* cmp=0,bp2,1,0=0b000 */
@@ -182,7 +255,13 @@ static void SPIFlashClearProtectForData(void)
     SPIFlashWriteStatusReg(reg1, reg2);
 }
 
-/* erase 4K */
+/**********************************************************************************
+  * @brief       : 	擦除SPI Flash的数据，固定擦除4K内容
+  * @param[in]   : 	addr	擦除的首地址
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void EraseSPIFlashSector(unsigned int addr)
 {
     SPIFlashWriteEnable(1);  
@@ -200,7 +279,15 @@ void EraseSPIFlashSector(unsigned int addr)
     SPIFlashWaitWhenBusy();
 }
 
-/* program */
+/**********************************************************************************
+  * @brief       : 	向SPI Flash写入数据
+  * @param[in]   : 	addr	写入的首地址
+  					buf		待写入的数据缓冲区地址
+  					len		待写入的数据长度
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void ProgramSPIFlash(unsigned int addr, unsigned char *buf, int len)
 {
     int i;
@@ -232,6 +319,15 @@ void ProgramSPIFlash(unsigned int addr, unsigned char *buf, int len)
     
 }
 
+/**********************************************************************************
+  * @brief       : 	向SPI Flash读取数据
+  * @param[in]   : 	addr	读取的首地址
+  					buf		读取的数据存放的缓冲区地址
+  					len		待读取的数据长度
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void ReadSPIFlash(unsigned int addr, unsigned char *buf, int len)
 {
     int i;
@@ -255,13 +351,26 @@ void ReadSPIFlash(unsigned int addr, unsigned char *buf, int len)
 #endif
 }
 
-
+/**********************************************************************************
+  * @brief       : 	初始化SPI Flash
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void InitSPIFlash(void)
 {
     SPIFlashClearProtectForStatusReg();
     SPIFlashClearProtectForData();
 }
 
+/**********************************************************************************
+  * @brief       : 	测试用SPI Flash写入函数
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void DoWriteSPIFLASH(void)
 {
 	unsigned int addr;
@@ -278,7 +387,13 @@ void DoWriteSPIFLASH(void)
 	ProgramSPIFlash(addr, str, strlen((char *)str)+1);
 }
 
-
+/**********************************************************************************
+  * @brief       : 	测试用SPI Flash读取函数
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void DoReadSPIFLASH(void)
 {
 	unsigned int addr;
@@ -323,6 +438,13 @@ void DoReadSPIFLASH(void)
 
 }
 
+/**********************************************************************************
+  * @brief       : 	测试用SPI Flash擦除函数
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void DoEraseSPIFLASH(void)
 {
 	unsigned int addr;

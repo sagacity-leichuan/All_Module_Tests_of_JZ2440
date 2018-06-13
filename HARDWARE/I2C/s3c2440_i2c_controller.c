@@ -1,14 +1,30 @@
+/****************************************************************************************************
+  * @brief      : 	JZ2440v2开发板i2c控制器代码源文件
+  * @version    : 	V0.0
+  * @note       : 	无
+  * @history    : 	无
+*****************************************************************************************************/
+
 #include "i2c_controller.h"
 #include "s3c2440_soc.h"
-#include "function.h"
+#include "timer.h"
 #include "my_printf.h"
 #include "string_utils.h"
 #include "interrupt.h"
 
 
-static PSI2cMsg g_psCurMsg;
+static PSI2cMsg g_psCurMsg;			//当前处理的I2C消息
 
-int isLastData(void)
+
+/**********************************************************************************
+  * @brief       : 	判断是否为最后一个I2C数据
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	1	是最后一个I2C数据
+  					0	非最后一个I2C数据
+  * @others      : 	无
+***********************************************************************************/
+static int isLastData(void)
 {
 	if (g_psCurMsg->iCntTransferred == g_psCurMsg->iLen - 1)
 		return 1;  /* 正要开始传输最后一个数据 */
@@ -16,7 +32,14 @@ int isLastData(void)
 		return 0;
 }
 
-void ResumeIicWithAck(void)
+/**********************************************************************************
+  * @brief       : 	重新开启并回复一个ack信号
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void ResumeIicWithAck(void)
 {
 	unsigned int iiccon = IICCON;
 	iiccon |= (1<<7); /* 回应ACK */
@@ -24,14 +47,27 @@ void ResumeIicWithAck(void)
 	IICCON =  iiccon;
 }
 
-void ResumeIicWithoutAck(void)
+/**********************************************************************************
+  * @brief       : 	重新开启并不回复一个ack信号
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void ResumeIicWithoutAck(void)
 {
 	unsigned int iiccon = IICCON;
 	iiccon &= ~((1<<7) | (1<<4)); /* 不回应ACK, 恢复IIC操作 */
 	IICCON =  iiccon;
 }
 
-
+/**********************************************************************************
+  * @brief       : 	S3C2440 I2C中断处理函数
+  * @param[in]   : 	irq	中断号
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void I2cInterruptFunc(int irq)
 {
 	int index;
@@ -147,7 +183,14 @@ void I2cInterruptFunc(int irq)
 }
 
 
-int InitS3c2440I2cCon(void)
+/**********************************************************************************
+  * @brief       : 	初始化S3C2440 I2C中断控制
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	0	无实际意义
+  * @others      : 	无
+***********************************************************************************/
+static int InitS3c2440I2cCon(void)
 {
 	/* 配置引脚用于I2C*/
 	GPECON &= ~((3<<28) | (3<<30));
@@ -169,7 +212,15 @@ int InitS3c2440I2cCon(void)
 	return 0;
 }
 
-int DoMasterTx(PSI2cMsg msg)
+/**********************************************************************************
+  * @brief       : 	S3C2440 I2C主机发送
+  * @param[in]   : 	msg	需要发送的I2C信号
+  * @param[out]  : 	无
+  * @return      : 	0	发送成功
+  					-1	发送失败
+  * @others      : 	无
+***********************************************************************************/
+static int DoMasterTx(PSI2cMsg msg)
 {
 	g_psCurMsg = msg;
 	
@@ -206,7 +257,15 @@ int DoMasterTx(PSI2cMsg msg)
 	}
 }
 
-int DoMasterRx(PSI2cMsg msg)
+/**********************************************************************************
+  * @brief       : 	S3C2440 I2C主机接收
+  * @param[in]   : 	无
+  * @param[out]  : 	msg	数据接收存放的I2C信息结构体
+  * @return      : 	0	接收成功
+  					-1	接收失败
+  * @others      : 	无
+***********************************************************************************/
+static int DoMasterRx(PSI2cMsg msg)
 {
 	g_psCurMsg = msg;
 
@@ -238,7 +297,16 @@ int DoMasterRx(PSI2cMsg msg)
 		return 0;
 }
 
-int S3c2440MasterXfer(PSI2cMsg msgs, int num)
+/**********************************************************************************
+  * @brief       : 	S3C2440 I2C主机传送函数
+  * @param[in]   : 	msg	数据传送的I2C信息结构体缓冲区指针
+  					num	数据传送的I2C信息结构体个数
+  * @param[out]  : 	无
+  * @return      : 	0	传送成功
+  					err	传送失败
+  * @others      : 	无
+***********************************************************************************/
+static int S3c2440MasterXfer(PSI2cMsg msgs, int num)
 {
 	int i;
 	int err;
@@ -255,7 +323,7 @@ int S3c2440MasterXfer(PSI2cMsg msgs, int num)
 	return 0;
 }
 
-/* 实现i2c_controller
+/* 实现   i2c_controller
           .init
           .master_xfer
           .name
@@ -267,6 +335,13 @@ static SI2cController sS3c2440I2cCon = {
 	.MasterXfer = S3c2440MasterXfer,
 };
 
+/**********************************************************************************
+  * @brief       : 	S3C2440 I2C控制器注册函数
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void AddS3c2440I2cCon(void)
 {
 	RegisterI2cController(&sS3c2440I2cCon);

@@ -1,3 +1,10 @@
+/****************************************************************************************************
+  * @brief      : 	JZ2440v2开发板nand flash代码源文件
+  * @version    : 	V0.0
+  * @note       : 	无
+  * @history    : 	无
+*****************************************************************************************************/
+
 #include "s3c2440_soc.h"
 #include "nand_flash.h"
 #include "my_printf.h"
@@ -9,6 +16,13 @@
 
 #define TXD0READY   (1<<2)
 
+/**********************************************************************************
+  * @brief       : 	初始化nand flash
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void InitNand(void)
 {
 #define TACLS   0
@@ -20,32 +34,66 @@ void InitNand(void)
 	NFCONT = (1<<4)|(1<<1)|(1<<0);	
 }
 
-void SelectNand(void)
+/**********************************************************************************
+  * @brief       : 	选中nand flash
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void SelectNand(void)
 {
 	NFCONT &= ~(1<<1);	
 }
 
-void DeselectNand(void)
+/**********************************************************************************
+  * @brief       : 	取消选中nand flash
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void DeselectNand(void)
 {
 	NFCONT |= (1<<1);	
 }
 
-void NandCmd(unsigned char cmd)
+/**********************************************************************************
+  * @brief       : 	向nand flash发送一个命令
+  * @param[in]   : 	cmd		待发送的命令
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void NandCmd(unsigned char cmd)
 {
 	volatile int i;
 	NFCCMD = cmd;
 	for (i = 0; i < 10; i++);
 }
 
-void NandAddrByte(unsigned char addr)
+/**********************************************************************************
+  * @brief       : 	向nand flash发送一个地址
+  * @param[in]   : 	addr	待发送的地址
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void NandAddrByte(unsigned char addr)
 {
 	volatile int i;
 	NFADDR = addr;
 	for(i=0; i<10; i++);
 }
 
-
-void NandAddr(unsigned int addr)
+/**********************************************************************************
+  * @brief       : 	向nand flash发送一个地址
+  * @param[in]   : 	addr	待发送的地址
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void NandAddr(unsigned int addr)
 {
 	unsigned int iCol  = addr % 2048;
 	unsigned int iPage = addr / 2048;
@@ -64,7 +112,14 @@ void NandAddr(unsigned int addr)
 	for (i = 0; i < 10; i++);	
 }
 
-void NandPage(unsigned int page)
+/**********************************************************************************
+  * @brief       : 	向nand flash发送一个页地址
+  * @param[in]   : 	page	待发送的页地址
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void NandPage(unsigned int page)
 {
 	volatile int i;
 	
@@ -76,7 +131,14 @@ void NandPage(unsigned int page)
 	for (i = 0; i < 10; i++);	
 }
 
-void NandCol(unsigned int col)
+/**********************************************************************************
+  * @brief       : 	向nand flash发送一个列地址
+  * @param[in]   : 	col	待发送的列地址
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void NandCol(unsigned int col)
 {
 	volatile int i;
 
@@ -86,18 +148,38 @@ void NandCol(unsigned int col)
 	for (i = 0; i < 10; i++);
 }
 
-
-void NandWaitReady(void)
+/**********************************************************************************
+  * @brief       : 	等待nand flash就绪
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void NandWaitReady(void)
 {
 	while (!(NFSTAT & 1));
 }
 
-unsigned char NandData(void)
+/**********************************************************************************
+  * @brief       : 	获取nand flash一个数据
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static unsigned char NandData(void)
 {
 	return NFDATA;
 }
 
-int NandBad(unsigned int addr)
+/**********************************************************************************
+  * @brief       : 	检测nand flash坏块
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static int NandBad(unsigned int addr)
 {
 	unsigned int col  = 2048;
 	unsigned int page = addr / 2048;
@@ -132,7 +214,14 @@ int NandBad(unsigned int addr)
 		return 0;
 }
 
-
+/**********************************************************************************
+  * @brief       : 	读取nand flash数据
+  * @param[in]   : 	addr	读取数据的开始地址
+  					len		读取数据的长度
+  * @param[out]  : 	buf		存放读取的数据的数据缓冲区
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void ReadNand(unsigned int addr, unsigned char *buf, unsigned int len)
 {
 	int iCol = addr % 2048;
@@ -173,21 +262,32 @@ void ReadNand(unsigned int addr, unsigned char *buf, unsigned int len)
 		
 		iCol = 0;
 
-
 		/* 7. 取消选中 */		
 		DeselectNand();
 		
 	}
 }
 
-void NandWData(unsigned char val)
+/**********************************************************************************
+  * @brief       : 	向nand flash写入一个数据
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void NandWData(unsigned char val)
 {
 	NFDATA = val;
 }
 
-
-
-void PrintNandChipID(void)
+/**********************************************************************************
+  * @brief       : 	打印nand flash ID数据
+  * @param[in]   : 	无
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void PrintNandChipID(void)
 { 
 	unsigned char buf[5]={0};
 	
@@ -211,6 +311,15 @@ void PrintNandChipID(void)
 	printf("5th byte    = 0x%x\n\r",buf[4]);	
 }
 
+/**********************************************************************************
+  * @brief       : 	擦除nand flash
+  * @param[in]   : 	addr	擦除的开始地址
+  					len		擦除的长度
+  * @param[out]  : 	无
+  * @return      : 	0	擦除成功
+  					-1	擦除失败
+  * @others      : 	无
+***********************************************************************************/
 int NandErase(unsigned int addr, unsigned int len)
 {
 	int page = addr / 2048;
@@ -254,6 +363,15 @@ int NandErase(unsigned int addr, unsigned int len)
 	return 0;
 }
 
+/**********************************************************************************
+  * @brief       : 	写入nand flash
+  * @param[in]   : 	addr	数据写入的开始地址
+  					len		数据写入的长度
+  					buf		数据写入的数据缓冲区		
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void NandWrite(unsigned int addr, unsigned char *buf, unsigned int len)
 {
 	int page = addr / 2048;
@@ -298,9 +416,14 @@ void NandWrite(unsigned int addr, unsigned char *buf, unsigned int len)
 	DeselectNand(); 	
 }
 
-
-
-void DoReadNandFlash(void)
+/**********************************************************************************
+  * @brief       : 	测试nand flash用的读取函数
+  * @param[in]   : 	无	
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void DoReadNandFlash(void)
 {
 	unsigned int addr;
 	volatile unsigned char *p;
@@ -343,7 +466,14 @@ void DoReadNandFlash(void)
 	}
 }
 
-void DoEraseNandFlash(void)
+/**********************************************************************************
+  * @brief       : 	测试nand flash用的擦除函数
+  * @param[in]   : 	无	
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void DoEraseNandFlash(void)
 {
 	unsigned int addr;
 	
@@ -355,8 +485,14 @@ void DoEraseNandFlash(void)
 	NandErase(addr, 128*1024);
 }
 
-
-void DoWriteNandFlash(void)
+/**********************************************************************************
+  * @brief       : 	测试nand flash用的写入函数
+  * @param[in]   : 	无	
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
+static void DoWriteNandFlash(void)
 {
 	unsigned int addr;
 	unsigned char str[100];
@@ -373,55 +509,13 @@ void DoWriteNandFlash(void)
 
 }
 
-void Convert(unsigned char buf[],unsigned int c, int radix)
-{
-	unsigned int iTemp;
-	unsigned char chBuf[33];
-	int i = 0;
-	int j;
-
-	if(c == 0)
-	{
-		buf[0] = '0';
-		buf[1] = '\0';
-		return;
-	}
-	
-	while(c != 0)  
-    {  
-    	if(radix == 16)
-		{
-	        iTemp=c%16;
-	        if(iTemp>=0 && iTemp<10)  
-	        {  
-	            chBuf[i]=iTemp +'0';  
-	            i++;  
-	        }  
-	        else  
-	        {  
-	            chBuf[i]=iTemp+'A'-10;       
-	            i++;  
-	        }	        	
-	        c = c/16;	        
-        }
-        else if(radix == 10)
-        {
-			iTemp=c%10;  
-	        if(iTemp>=0 && iTemp<10)  
-	        {  
-	            chBuf[i]=iTemp +'0';  
-	            i++;  
-	        }	        
-	        c = c/10;
-        }
-    }
-
-	for(j=0;j<i;j++)
-		buf[j]=chBuf[i-j-1];
-    
-    buf[i]='\0'; 
-}
-
+/**********************************************************************************
+  * @brief       : 	测试nand flash函数
+  * @param[in]   : 	无	
+  * @param[out]  : 	无
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void TestNandFlash(void)
 {
 	char c;
@@ -584,8 +678,4 @@ void TestNandFlash(void)
 		}
 	}
 }
-
-
-
-
 

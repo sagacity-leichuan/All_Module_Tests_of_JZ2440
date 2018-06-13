@@ -16,7 +16,7 @@
 
 /* 有一个i2c_controller数组用来存放各种不同芯片的操作结构体 */
 static PSI2cController g_psI2cControllers[I2C_CONTROLLER_NUM];
-static PSI2cController g_psI2cConSelected = NULL;
+static PSI2cController g_psI2cConSelected = 0;
 
 /**********************************************************************************
   * @brief       : 	注册I2C控制器

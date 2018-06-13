@@ -1,8 +1,15 @@
+/****************************************************************************************************
+  * @brief      : 	JZ2440v2开发板触摸屏功能库代码源文件
+  * @version    : 	V0.0
+  * @note       : 	无
+  * @history    : 	无
+*****************************************************************************************************/
+
 #include "geometry.h"
 #include "tslib.h"
+#include "lcd.h"
 #include "my_printf.h"
 #include "touchscreen.h"
-
 
 static volatile double gs_dKx;
 static volatile double gs_dKy;
@@ -15,16 +22,39 @@ static volatile int gs_TsXYSwap = 0;
 static unsigned int gs_uiFbBase;
 static int gs_iXres, gs_iYres, gs_iBpp;
 
-int GetLcdXFrmTsX(int ts_x)
+
+/******************************************************************************************************
+  * @brief       : 	获取通过触摸笔点击触摸屏的x坐标得到lcd上对应度坐标
+  * @param[in]   : 	ts_x	触摸笔点击触摸屏的x坐标
+  * @param[out]  : 	无
+  * @return      : 	返回lcd上相对应的x坐标
+  * @others      : 	无
+********************************************************************************************************/
+static int GetLcdXFrmTsX(int ts_x)
 {
 	return gs_dKx * (ts_x - gs_iTsXc) + gs_iLcdXc;
 }
 
-int GetLcdYFrmTsY(int ts_y)
+/******************************************************************************************************
+  * @brief       : 	获取通过触摸笔点击触摸屏的y坐标得到lcd上对应度坐标
+  * @param[in]   : 	ts_y	触摸笔点击触摸屏的x坐标
+  * @param[out]  : 	无
+  * @return      : 	返回lcd上相对应的y坐标
+  * @others      : 	无
+********************************************************************************************************/
+static int GetLcdYFrmTsY(int ts_y)
 {
 	return gs_dKy * (ts_y - gs_iTsYc) + gs_iLcdYc;
 }
 
+/******************************************************************************************************
+  * @brief       : 	获取通过触摸笔点击触摸屏两个点之间的坐标差值
+  * @param[in]   : 	x	触摸笔点击触摸屏的一个点的坐标值（单一方向）
+  					y	触摸笔点击触摸屏的另一个点的坐标值（单一方向）
+  * @param[out]  : 	无
+  * @return      : 	返回两个点差值的绝对值
+  * @others      : 	无
+********************************************************************************************************/
 static int SeekDifference(int x, int y)
 {
 	int iTemp = x - y;
@@ -35,6 +65,13 @@ static int SeekDifference(int x, int y)
 		return iTemp*(-1);
 }
 
+/******************************************************************************************************
+  * @brief       : 	设置触摸屏校准参数
+  * @param[in]   : 	tsparam	触摸屏校准原始参数
+  * @param[out]  : 	无
+  * @return      : 	0	无实际意义
+  * @others      : 	无
+********************************************************************************************************/
 int SetTsCalibrateParams(PSTsParameters tsparam)
 {
 
@@ -78,7 +115,15 @@ int SetTsCalibrateParams(PSTsParameters tsparam)
 	return 0;
 }
 
-
+/******************************************************************************************************
+  * @brief       : 	获取校准触摸屏一个点的数据
+  * @param[in]   : 	lcd_x	校准提示十字架在lcd上的x坐标
+  					lcd_y	校准提示十字架在lcd上的y坐标
+  * @param[out]  : 	px		用以存放点击后触摸屏的x坐标
+  					py		用以存放点击后的触摸屏的y坐标
+  * @return      : 	无
+  * @others      : 	无
+********************************************************************************************************/
 void GetCalibratePointData(int lcd_x, int lcd_y, int *px, int *py)
 {
 	int iPressure = 0;
@@ -126,7 +171,17 @@ void GetCalibratePointData(int lcd_x, int lcd_y, int *px, int *py)
 	FbDispCross(lcd_x, lcd_y, 0x0);
 }
 
-
+/******************************************************************************************************
+  * @brief       : 	判断触摸屏数据是否需要调换位置
+  * @param[in]   : 	a_ts_x	触摸屏的一个点的x坐标
+  					a_ts_y	触摸屏的一个点的y坐标
+  					b_ts_x	触摸屏的另一个点的x坐标
+  					b_ts_y	触摸屏的另一个点的y坐标
+  * @param[out]  : 	无
+  * @return      : 	0	不需要调换横纵坐标值
+  					1	需要调换横纵坐标值
+  * @others      : 	无
+********************************************************************************************************/
 int isTsXYSwap(int a_ts_x, int a_ts_y, int b_ts_x, int b_ts_y)
 {
 	int iDx = b_ts_x - a_ts_x;
@@ -143,6 +198,16 @@ int isTsXYSwap(int a_ts_x, int a_ts_y, int b_ts_x, int b_ts_y)
 		return 1; /* xy反了 */
 }
 
+
+/**********************************************************************************
+  * @brief       : 	调换一个横纵坐标的值
+  * @param[in]   : 	px	待调换的x坐标
+  					py	待调换的y坐标
+  * @param[out]  : 	px	调换后的x坐标存放地址
+  					py	调换后的y坐标存放地址
+  * @return      : 	无
+  * @others      : 	无
+***********************************************************************************/
 void SwapXY(int *px, int *py)
 {
 	int iTmp = *px;
@@ -166,7 +231,15 @@ void SwapXY(int *px, int *py)
 ----------------------------
 
 */
-
+	
+/**********************************************************************************
+  * @brief		 :	触摸屏校准函数
+  * @param[in]	 :	无
+  * @param[out]  :	tsparam	存放触摸屏校准原始数据
+  * @return 	 :	0	校准失败
+  					1	校准成功
+  * @others 	 :	无
+***********************************************************************************/
 int CalibrateTs(PSTsParameters tsparam)
 {
 
@@ -292,10 +365,17 @@ int CalibrateTs(PSTsParameters tsparam)
 		return 1;
 	}
 }
-
-/*
- * 读TS原始数据, 转换为LCD坐标
- */
+	
+/**********************************************************************************
+  * @brief		 :	读TS原始数据, 转换为LCD坐标
+  * @param[in]	 :	无
+  * @param[out]  :	lcd_x	存放转换完成的lcd x坐标
+  					lcd_y	存放转换完成的lcd y坐标
+  					lcd_pressure	存放触摸笔的压力状态
+  * @return 	 :	1	无数据
+  					0	有数据
+  * @others 	 :	无
+***********************************************************************************/
 int ReadTs(int *lcd_x, int *lcd_y, int *lcd_pressure)
 {
 	int ts_x = 0, ts_y = 0, ts_pressure = 0;
@@ -335,7 +415,4 @@ int ReadTs(int *lcd_x, int *lcd_y, int *lcd_pressure)
 	*lcd_pressure = ts_pressure;
 	return 0;
 }
-
-
-
 
