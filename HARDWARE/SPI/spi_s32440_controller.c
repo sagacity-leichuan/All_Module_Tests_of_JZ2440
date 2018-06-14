@@ -6,6 +6,7 @@
 *****************************************************************************************************/
 
 #include "s3c2440_soc.h"
+#include "timer.h"
 #include "spi_s3c2440_controller.h"
 
 
@@ -45,7 +46,15 @@ static void s3c2440SPIGPIOInit(void)
 ***********************************************************************************/
 void SendByteSPIS3c2440Controller(unsigned char val)
 {
-    while (!(SPSTA1 & 1));
+	unsigned long long iPre = GetSystemTimeUs();
+	unsigned long long iNow;
+	
+    while (!(SPSTA1 & 1))
+    {
+		iNow = GetSystemTimeUs();
+		if(DeltaTimeUs(iPre,iNow) == 1000000)
+			return;
+    }
     SPTDAT1 = val;    
 }
 
@@ -58,8 +67,16 @@ void SendByteSPIS3c2440Controller(unsigned char val)
 ***********************************************************************************/
 unsigned char RecvByteSPIS3c2440Controller(void)
 {
+	unsigned long long iPre = GetSystemTimeUs();
+	unsigned long long iNow;
+	
     SPTDAT1 = 0xff;    
-    while (!(SPSTA1 & 1));
+    while (!(SPSTA1 & 1))
+    {
+		iNow = GetSystemTimeUs();
+		if(DeltaTimeUs(iPre,iNow) == 1000000)
+			return 0xff;
+    }
     return SPRDAT1;    
 }
 

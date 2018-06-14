@@ -48,12 +48,12 @@ static int WriteAt24cxx(unsigned int addr, unsigned char *data, int len)
 		msg.iErr   = 0;
 		msg.iCntTransferred = -1;
 
-		printf("WriteAt24cxx addr = %d\n\r",addr);
-		printf("WriteAt24cxx data[%d] = %c\n\r",i,data[i]);
+		//printf("WriteAt24cxx addr = %d\n\r",addr);
+		//printf("WriteAt24cxx data[%d] = %c\n\r",i,data[i]);
 
 		/* µ÷ÓÃi2c_transfer */
 		err = TransferI2c(&msg, 1);
-		printf("WriteAt24cxx err = %d\n\r",err);
+		//printf("WriteAt24cxx err = %d\n\r",err);
 		
 		if (err)
 			return err;

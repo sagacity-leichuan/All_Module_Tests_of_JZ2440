@@ -235,7 +235,7 @@ static int DoMasterTx(PSI2cMsg msg)
 	/* 2. 把从设备地址写入IICDS */
 	IICDS = msg->iAddr<<1;
 
-	printf("msg->iAddr = %d\n\r",msg->iAddr);
+	//printf("msg->iAddr = %d\n\r",msg->iAddr);
 	
 	/* 3. IICSTAT = 0xf0 , 数据即被发送出去, 将导致中断产生 */
 	IICSTAT = 0xf0;
@@ -280,7 +280,7 @@ static int DoMasterRx(PSI2cMsg msg)
 	/* 2. 把从设备地址写入IICDS */
 	IICDS = (msg->iAddr<<1)|(1<<0);
 
-	printf("msg->iAddr = %d\n\r",msg->iAddr);
+	//printf("msg->iAddr = %d\n\r",msg->iAddr);
 	
 	/* 3. IICSTAT = 0xb0 , 从设备地址即被发送出去, 将导致中断产生 */
 	IICSTAT = 0xb0;

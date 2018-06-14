@@ -9,8 +9,8 @@
 #include "spi_s3c2440_controller.h"
 #include "timer.h"
 #include "my_printf.h"
+#include "function.h"
 #include "string_utils.h"
-
 
 /**********************************************************************************
   * @brief       : 	ÉèÖÃSPI FlashµÄCS×´Ì¬
